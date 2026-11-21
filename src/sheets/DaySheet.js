@@ -243,10 +243,25 @@ function DiaryTab({ date }) {
 
   if (!edit) {
     if (!hasDiary(v)) {
+      // 일기는 오늘까지만 쓸 수 있음 (미래 날짜는 잠금)
+      if (date > todayStr()) {
+        return (
+          <View style={st.evEmpty}>
+            <Mochi mood={2} size={64} />
+            <Text style={st.evEmptyT}>아직 오지 않은 날이에요</Text>
+            <Text style={st.evEmptyS}>그날이 되면 일기를 쓸 수 있어요</Text>
+          </View>
+        );
+      }
       return (
-        <View style={st.cta}>
-          <Text style={{ color: C.sub, fontSize: 14 }}>{date > todayStr() ? '아직 오지 않은 날이에요' : '아직 기록이 없어요'}</Text>
-          <Pressable style={st.ctaBtn} onPress={startEdit}><Text style={st.ctaBtnTx}>일기 쓰기</Text></Pressable>
+        <View style={st.evEmpty}>
+          <Mochi mood={1} size={64} full />
+          <Text style={st.evEmptyT}>{date === todayStr() ? '오늘 하루는 어땠나요?' : '이 날의 기록이 없어요'}</Text>
+          <Text style={st.evEmptyS}>기분 하나만 골라도 기록돼요</Text>
+          <Pressable style={[st.evEmptyBtn, { backgroundColor: theme.a }]} onPress={startEdit}>
+            <IconPen size={15} color="#fff" />
+            <Text style={st.evEmptyBtnTx}>일기 쓰기</Text>
+          </Pressable>
         </View>
       );
     }
