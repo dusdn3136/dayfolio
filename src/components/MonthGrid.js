@@ -149,7 +149,7 @@ const st = StyleSheet.create({
   cell: { flex: 1 },
   num: { position: 'absolute', top: 5, left: 4, minWidth: 22, height: 22, paddingHorizontal: 3, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   numTx: { fontSize: 13, fontWeight: '600', color: C.ink2 },
-  mochi: { position: 'absolute', top: 7, right: 3 },
+  mochi: { position: 'absolute', top: 4, right: 3 },
   memoMark: { position: 'absolute', top: 9, right: 5 },
   more: { position: 'absolute', left: 6, fontSize: 10, lineHeight: 16, color: C.sub, fontWeight: '700' },
   barWrap: { position: 'absolute', height: 17 },
