@@ -6,7 +6,7 @@ import { useApp } from '../store';
 import { IconChevron } from '../components/Icons';
 
 // TODO: 출시 전에 개인정보처리방침 페이지 주소로 바꾸기
-const PRIVACY_URL = '';
+const PRIVACY_URL = 'https://dusdn3136.github.io/dayfolio/privacy.html';
 
 export default function SettingsScreen() {
   const { data, theme, openSheet, reset, toast } = useApp();
