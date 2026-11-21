@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { C, MOODS, dLabel, dayDiff, hasDiary, md, todayStr } from '../constants';
 import { useApp } from '../store';
@@ -9,6 +9,9 @@ import Mochi from '../components/Mochi';
 export default function CalendarScreen({ year, month }) {
   const { data, theme, openSheet } = useApp();
   const today = todayStr();
+  const [viewH, setViewH] = useState(0);
+  const [topH, setTopH] = useState(0);
+  const gridH = viewH && topH ? viewH - topH - 28 : 0;
   const v = data.diary[today];
   const m = v && v.mood != null ? MOODS[v.mood] : null;
   const dues = data.events.filter((e) => e.kind === 'due' && !e.done && e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
@@ -17,7 +20,8 @@ export default function CalendarScreen({ year, month }) {
     .sort((a, b) => a.date.localeCompare(b.date));
 
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 120 }} onLayout={(e) => setViewH(e.nativeEvent.layout.height)}>
+      <View onLayout={(e) => setTopH(e.nativeEvent.layout.height)}>
       <Pressable style={[st.todayCard, { backgroundColor: theme.s }]} onPress={() => openSheet('day', { date: today, tab: 'dy' })}>
         <View style={st.todayIc}>{m ? <Mochi mood={v.mood} size={32} /> : <IconPen color={theme.a} />}</View>
         <View style={{ flex: 1 }}>
@@ -33,7 +37,8 @@ export default function CalendarScreen({ year, month }) {
           <Text key={w} style={[st.dowTx, i === 0 && { color: C.sun }]}>{w}</Text>
         ))}
       </View>
-      <MonthGrid year={year} month={month} onPressDay={(s) => openSheet('day', { date: s, tab: 'ev' })} />
+      </View>
+      <MonthGrid year={year} month={month} height={gridH} onPressDay={(s) => openSheet('day', { date: s, tab: 'ev' })} />
 
       {dues.length ? (
         <>
@@ -68,11 +73,11 @@ export default function CalendarScreen({ year, month }) {
 }
 
 const st = StyleSheet.create({
-  todayCard: { marginHorizontal: 14, marginTop: 4, marginBottom: 14, borderRadius: 18, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  todayCard: { marginHorizontal: 14, marginTop: 4, marginBottom: 22, borderRadius: 18, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
   todayIc: { width: 34, height: 34, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
   todayL: { fontSize: 12, fontWeight: '700' },
   todayS: { fontSize: 14.5, fontWeight: '500', marginTop: 2, color: C.ink2 },
-  dow: { flexDirection: 'row', paddingHorizontal: 8, paddingBottom: 4 },
+  dow: { flexDirection: 'row', paddingHorizontal: 8, paddingBottom: 8 },
   dowTx: { flex: 1, fontSize: 11, color: C.sub, fontWeight: '600', paddingLeft: 6 },
   secT: { fontSize: 15, fontWeight: '800', marginTop: 24, marginHorizontal: 18, marginBottom: 10, color: C.ink },
   chipsRow: { gap: 8, paddingHorizontal: 18 },

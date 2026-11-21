@@ -7,12 +7,19 @@ import Mochi from './Mochi';
 
 const LANE_TOP = 31;
 const LANE_H = 17;
-const MAX_LANES = 3;
-const WEEK_H = 98;
+const MIN_WEEK_H = 92;
 
-export default function MonthGrid({ year, month, onPressDay }) {
+// height: 달력 전체에 쓸 수 있는 높이 (주 수로 나눠서 칸을 꽉 채움)
+export default function MonthGrid({ year, month, onPressDay, height }) {
   const { data, theme } = useApp();
   const today = todayStr();
+
+  const nWeeks = useMemo(() => {
+    const first = new Date(year, month, 1).getDay();
+    return Math.ceil((first + new Date(year, month + 1, 0).getDate()) / 7);
+  }, [year, month]);
+  const weekH = Math.max(MIN_WEEK_H, height ? Math.floor(height / nWeeks) : MIN_WEEK_H);
+  const maxLanes = Math.max(3, Math.floor((weekH - LANE_TOP - 8) / LANE_H));
 
   const weeks = useMemo(() => {
     const first = new Date(year, month, 1);
@@ -55,17 +62,17 @@ export default function MonthGrid({ year, month, onPressDay }) {
         }
         for (let c = it.sc; c <= it.ec; c++) occ[lane][c] = true;
         it.lane = lane;
-        if (lane >= MAX_LANES) for (let c = it.sc; c <= it.ec; c++) hidden[c]++;
+        if (lane >= maxLanes) for (let c = it.sc; c <= it.ec; c++) hidden[c]++;
       });
-      out.push({ days, items: items.filter((it) => it.lane < MAX_LANES), hidden });
+      out.push({ days, items: items.filter((it) => it.lane < maxLanes), hidden });
     }
     return out;
-  }, [data.events, year, month]);
+  }, [data.events, year, month, maxLanes]);
 
   return (
     <View style={{ paddingHorizontal: 8 }}>
       {weeks.map((wk, wi) => (
-        <View key={wi} style={st.week}>
+        <View key={wi} style={[st.week, { height: weekH }]}>
           <View style={st.cells}>
             {wk.days.map((d, i) => {
               const s = ymd(d);
@@ -132,7 +139,7 @@ export default function MonthGrid({ year, month, onPressDay }) {
 }
 
 const st = StyleSheet.create({
-  week: { height: WEEK_H, borderTopWidth: 1, borderTopColor: C.line },
+  week: { borderTopWidth: 1, borderTopColor: C.line },
   cells: { flexDirection: 'row', height: '100%' },
   cell: { flex: 1 },
   num: { position: 'absolute', top: 5, left: 4, minWidth: 22, height: 22, paddingHorizontal: 3, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
