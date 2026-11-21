@@ -48,6 +48,15 @@ export function DateField({ value, onChange, mode = 'date' }) {
   const { theme } = useApp();
   const dateObj = mode === 'date' ? (value ? D(value) : new Date()) : toTime(value);
   const fmt = (d) => (mode === 'date' ? ymd(d) : `${pad(d.getHours())}:${pad(d.getMinutes())}`);
+  if (Platform.OS === 'web') {
+    // 웹 미리보기용: 브라우저 기본 날짜/시간 입력칸
+    return React.createElement('input', {
+      type: mode === 'date' ? 'date' : 'time',
+      value: mode === 'date' ? value || '' : value || '09:00',
+      onChange: (e) => e.target.value && onChange(e.target.value),
+      style: { fontSize: 15, padding: '8px 10px', border: '1px solid #e6e6ea', borderRadius: 10, fontFamily: 'inherit' },
+    });
+  }
   if (Platform.OS === 'ios') {
     return (
       <DateTimePicker
