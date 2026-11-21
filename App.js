@@ -85,7 +85,14 @@ function Main() {
           }}
         />
       ) : null}
-      <TabBar tab={tab} setTab={setTab} />
+      <TabBar
+        tab={tab}
+        setTab={(k) => {
+          // 이미 보고 있는 캘린더·일기장 탭을 한 번 더 누르면 이번 달로 돌아옴
+          if (k === tab && k !== 'set') goToday();
+          setTab(k);
+        }}
+      />
 
       <SheetHost />
       {toastMsg ? (
