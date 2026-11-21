@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, KeyboardAvoidingView, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Animated, KeyboardAvoidingView, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, Keyboard } from 'react-native';
 import { FONTS, Text } from './src/components/T';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
@@ -174,6 +174,8 @@ function SheetHost() {
           <View {...pan.panHandlers} style={st.grabArea} accessibilityLabel="아래로 끌어서 닫기">
             <View style={st.grab} />
           </View>
+          {/* 빈 곳을 누르면 키보드가 내려가게 */}
+          <Pressable style={{ flexShrink: 1, flexGrow: 1 }} onPress={Keyboard.dismiss} accessible={false}>
           {/* 아래 시트는 숨겨만 두고 살아있게 해서, 돌아왔을 때 입력하던 내용이 남아있게 한다 */}
           {sheets.map((sh, i) => {
             const Comp = SHEETS[sh.type];
@@ -182,6 +184,7 @@ function SheetHost() {
                 key={i}
                 style={i === last ? { flexGrow: 0, flexShrink: 1 } : { display: 'none' }}
                 keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
               >
@@ -189,6 +192,7 @@ function SheetHost() {
               </ScrollView>
             );
           })}
+          </Pressable>
         </Animated.View>
       </KeyboardAvoidingView>
     </Modal>
