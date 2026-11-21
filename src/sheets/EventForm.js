@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from '../components/T';
 import { C, dLabel, md, todayStr, uid } from '../constants';
 import { useApp } from '../store';
-import { Chips, DateField, SheetTop } from '../components/ui';
+import { Chips, DateField, SheetTop, Toggle } from '../components/ui';
 import RangeCalendar from '../components/RangeCalendar';
 import { ensurePermission } from '../notify';
 
@@ -62,7 +62,6 @@ export default function EventForm({ id, date }) {
 
   const ranged = !!endDate && endDate !== startDate;
   const hint = ranged ? `${md(startDate)}부터 ${md(endDate)}까지 달력에 막대로 표시되고, 끝나는 날 기준 ${dLabel(endDate)}로 알려드려요.` : '';
-  const sw = { trackColor: { true: theme.a, false: '#dcdce0' }, thumbColor: '#fff', ios_backgroundColor: '#dcdce0' };
 
   return (
     <View>
@@ -85,7 +84,7 @@ export default function EventForm({ id, date }) {
             onChange={(a, b) => { setStartDate(a); setEndDate(b); }}
           />
         ) : null}
-        {!ranged ? <Row label="하루 종일" sep><Switch value={allDay} onValueChange={setAllDay} {...sw} /></Row> : null}
+        {!ranged ? <Row label="하루 종일" sep><Toggle value={allDay} onChange={setAllDay} color={theme.a} /></Row> : null}
         {!ranged && !allDay ? <Row label="시간" sep><DateField mode="time" value={time} onChange={setTime} /></Row> : null}
       </View>
       {hint ? <Text style={st.hint}>{hint}</Text> : null}

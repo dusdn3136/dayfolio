@@ -1,5 +1,5 @@
-import React from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { C, D, md, pad, ymd } from '../constants';
@@ -101,6 +101,23 @@ export function SheetTop({ left, title, right, onLeft, onRight, rightColor }) {
         <Text style={[s.topBtn, { color: rightColor, fontWeight: '800' }]}>{right}</Text>
       </Pressable>
     </View>
+  );
+}
+
+// 켜기/끄기 스위치 (기본 Switch가 기기마다 모양·위치가 달라서 직접 만듦)
+export function Toggle({ value, onChange, color = '#4fa8e8' }) {
+  const x = useRef(new Animated.Value(value ? 1 : 0)).current;
+  useEffect(() => {
+    Animated.timing(x, { toValue: value ? 1 : 0, duration: 160, useNativeDriver: false }).start();
+  }, [value]);
+  const bg = x.interpolate({ inputRange: [0, 1], outputRange: ['#dcdce0', color] });
+  const left = x.interpolate({ inputRange: [0, 1], outputRange: [3, 23] });
+  return (
+    <Pressable onPress={() => onChange(!value)} hitSlop={8} accessibilityRole="switch" accessibilityState={{ checked: value }}>
+      <Animated.View style={{ width: 50, height: 30, borderRadius: 15, backgroundColor: bg, justifyContent: 'center' }}>
+        <Animated.View style={{ position: 'absolute', left, width: 24, height: 24, borderRadius: 12, backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.15, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 2 }} />
+      </Animated.View>
+    </Pressable>
   );
 }
 

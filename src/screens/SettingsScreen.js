@@ -1,11 +1,11 @@
 import React from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
 import Constants from 'expo-constants';
 import { C } from '../constants';
 import { useApp } from '../store';
 import { IconChevron } from '../components/Icons';
-import { DateField } from '../components/ui';
+import { DateField, Toggle } from '../components/ui';
 import { DEFAULT_NOTIFY, ensurePermission } from '../notify';
 
 // TODO: 출시 전에 개인정보처리방침 페이지 주소로 바꾸기
@@ -37,7 +37,7 @@ export default function SettingsScreen() {
       <View style={st.group}>
         <View style={st.row}>
           <Text style={st.label}>매일 일정 알림</Text>
-          <Switch value={notify.on} onValueChange={toggleNotify} trackColor={{ true: theme.a, false: '#dcdce0' }} thumbColor="#fff" ios_backgroundColor="#dcdce0" />
+          <Toggle value={notify.on} onChange={toggleNotify} color={theme.a} />
         </View>
         {notify.on ? (
           <View style={[st.row, { borderTopWidth: 1, borderTopColor: C.sep }]}>
