@@ -289,7 +289,10 @@ function DiaryTab({ date, startInEdit }) {
           {m ? (
             <View style={st.moodPill}><Mochi mood={v.mood} size={26} /><Text style={st.moodPillTx}>{m.n}</Text></View>
           ) : <View />}
-          <Pressable style={st.editBtn} onPress={startEdit} hitSlop={8}><IconPen color={C.sub} /><Text style={st.editTx}>수정</Text></Pressable>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <Pressable style={st.editBtn} onPress={startEdit} hitSlop={8}><IconPen color={C.sub} /><Text style={st.editTx}>수정</Text></Pressable>
+            <Pressable style={st.editBtn} onPress={remove} hitSlop={8}><IconTrash size={16} color={C.sun} /><Text style={[st.editTx, { color: C.sun }]}>삭제</Text></Pressable>
+          </View>
         </View>
         {ps.length ? (
           <View style={st.dvPhotos}>
@@ -396,7 +399,7 @@ const st = StyleSheet.create({
   moodPill: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 6, paddingLeft: 7, paddingRight: 12, borderRadius: 20, backgroundColor: C.soft },
   moodSq: { width: 20, height: 20, borderRadius: 7 },
   moodPillTx: { fontSize: 14, fontWeight: '700', color: C.ink },
-  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: C.soft, borderRadius: 10, paddingVertical: 7, paddingHorizontal: 11 },
   editTx: { fontSize: 14, fontWeight: '600', color: C.sub },
   dvPhotos: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 16 },
   dvPhoto: { width: '48.8%', aspectRatio: 1 },
