@@ -9,7 +9,7 @@ import { useApp } from '../store';
 import EventRow from '../components/EventRow';
 import Mochi from '../components/Mochi';
 import { CheckBox, Empty } from '../components/ui';
-import { IconChecklist, IconChevron, IconLines, IconPen, IconPhoto, IconPlus, IconX } from '../components/Icons';
+import { IconChecklist, IconChevron, IconLines, IconPen, IconPhoto, IconPlus, IconTrash, IconX } from '../components/Icons';
 
 // 사진을 앱 전용 폴더에 복사해서 보관
 function keepPhoto(uri) {
@@ -130,11 +130,25 @@ function MemosTab({ date }) {
         const done = m.type === 'check' ? m.items.filter((x) => x.ok).length : 0;
         return (
           <View key={m.id} style={st.memo}>
-            <Pressable style={st.memoHd} onPress={() => openSheet('memo', { id: m.id })}>
-              <Text numberOfLines={1} style={st.memoTitle}>{m.title || '제목 없음'}</Text>
-              {m.type === 'check' ? <Text style={st.memoCnt}>{done}/{m.items.length}</Text> : null}
-              <IconChevron size={16} color={C.faint} />
-            </Pressable>
+            <View style={st.memoHd}>
+              <Pressable style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 }} onPress={() => openSheet('memo', { id: m.id })}>
+                <Text numberOfLines={1} style={st.memoTitle}>{m.title || '제목 없음'}</Text>
+                {m.type === 'check' ? <Text style={st.memoCnt}>{done}/{m.items.length}</Text> : null}
+              </Pressable>
+              <Pressable
+                hitSlop={10}
+                style={st.memoDel}
+                accessibilityLabel="메모 삭제"
+                onPress={() =>
+                  Alert.alert(m.type === 'check' ? '이 체크리스트를 삭제할까요?' : '이 메모를 삭제할까요?', '', [
+                    { text: '취소', style: 'cancel' },
+                    { text: '삭제', style: 'destructive', onPress: () => { update((dr) => { dr.memos = dr.memos.filter((v) => v.id !== m.id); }); toast('삭제했어요'); } },
+                  ])
+                }
+              >
+                <IconTrash size={16} color={C.faint} />
+              </Pressable>
+            </View>
             {m.type === 'text' ? (
               <Pressable onPress={() => openSheet('memo', { id: m.id })}>
                 <Text style={st.memoText}>{m.text || '내용 없음'}</Text>
@@ -367,6 +381,7 @@ const st = StyleSheet.create({
   done: { color: C.faint, textDecorationLine: 'line-through' },
   addBox: { width: 24, height: 24, borderRadius: 8, borderWidth: 1.8, borderStyle: 'dashed', borderColor: C.faint, alignItems: 'center', justifyContent: 'center' },
   addInput: { flex: 1, fontSize: 15, color: C.ink, paddingVertical: 4 },
+  memoDel: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginLeft: 6 },
   memoAdds: { flexDirection: 'row', gap: 8, marginTop: 14 },
   memoAdd: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: C.soft, borderRadius: 14, paddingVertical: 14 },
   memoAddTx: { fontSize: 14, fontWeight: '700', color: C.ink2 },
