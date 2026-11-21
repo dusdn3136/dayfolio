@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 import { C, MOODS, dayDiff, range, todayStr, ymd } from '../constants';
-import { catOf, useApp } from '../store';
+import { catOf, isEmptyMemo, useApp } from '../store';
 import { IconMemoBadge } from './Icons';
 import Mochi from './Mochi';
 import { holidayOf } from '../holidays';
@@ -99,7 +99,7 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
               const dy = data.diary[s];
               const out = d.getMonth() !== month;
               const isToday = s === today;
-              const memos = data.memos.filter((m) => m.date === s);
+              const memos = data.memos.filter((m) => m.date === s && !isEmptyMemo(m));
               const memoItems = memos.flatMap((m) => (m.type === 'check' ? m.items : []));
               const memoLeft = memoItems.some((x) => !x.ok);
               const hasMood = dy && dy.mood != null;

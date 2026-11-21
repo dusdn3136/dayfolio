@@ -5,6 +5,10 @@ import { DEFAULT_NOTIFY, syncReminders } from './notify';
 
 const KEY = 'dayfolio-data-v1';
 
+// 제목·항목·내용이 모두 비어 있는 메모 (만들다 만 것)
+export const isEmptyMemo = (m) => !(m.title || '').trim() && !(m.items || []).length && !(m.text || '').trim();
+const pruneMemos = (d) => (d && d.memos.some(isEmptyMemo) ? { ...d, memos: d.memos.filter((m) => !isEmptyMemo(m)) } : d);
+
 export const emptyData = (theme = 'sky') => ({
   events: [],
   diary: {},
@@ -26,7 +30,7 @@ export function AppProvider({ children }) {
   // 처음 실행 시 폰 저장소에서 불러오기
   useEffect(() => {
     AsyncStorage.getItem(KEY)
-      .then((s) => setData(s ? { ...emptyData(), ...JSON.parse(s) } : emptyData()))
+      .then((s) => setData(s ? pruneMemos({ ...emptyData(), ...JSON.parse(s) }) : emptyData()))
       .catch(() => setData(emptyData()));
   }, []);
 
@@ -56,8 +60,9 @@ export function AppProvider({ children }) {
   const reset = useCallback(() => setData((prev) => emptyData(prev ? prev.theme : 'sky')), []);
 
   const openSheet = useCallback((type, props = {}) => setSheets((s) => [...s, { type, props }]), []);
-  const closeSheet = useCallback(() => setSheets((s) => s.slice(0, -1)), []);
-  const closeAllSheets = useCallback(() => setSheets([]), []);
+  // 창을 닫을 때 만들다 만 빈 메모는 정리
+  const closeSheet = useCallback(() => { setSheets((s) => s.slice(0, -1)); setData(pruneMemos); }, []);
+  const closeAllSheets = useCallback(() => { setSheets([]); setData(pruneMemos); }, []);
   const setSheetProps = useCallback(
     (patch) => setSheets((s) => (s.length ? [...s.slice(0, -1), { ...s[s.length - 1], props: { ...s[s.length - 1].props, ...patch } }] : s)),
     []
