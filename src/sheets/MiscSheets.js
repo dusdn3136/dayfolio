@@ -4,7 +4,7 @@ import { Text, TextInput } from '../components/T';
 import { C, PALETTE, THEMES, md, uid } from '../constants';
 import { useApp } from '../store';
 import { CheckBox, DateField, SheetTop } from '../components/ui';
-import { IconPlus, IconTrash, IconX } from '../components/Icons';
+import { IconChevron, IconPlus, IconTrash, IconX } from '../components/Icons';
 
 // ── 분류 편집 ─────────────────────────────
 export function CategorySheet() {
@@ -176,6 +176,46 @@ export function MemoSheet({ id, isNew }) {
     </View>
   );
 }
+
+// ── 년·월 고르기 ──────────────────────────
+export function MonthPickerSheet({ y, m, onPick }) {
+  const { closeSheet, theme } = useApp();
+  const [year, setYear] = useState(y);
+  const now = new Date();
+  return (
+    <View style={{ paddingTop: 4 }}>
+      <View style={mp.yearRow}>
+        <Pressable onPress={() => setYear(year - 1)} hitSlop={12} style={mp.arw} accessibilityLabel="이전 해"><IconChevron dir="left" size={22} color={C.ink2} /></Pressable>
+        <Text style={mp.year}>{year}년</Text>
+        <Pressable onPress={() => setYear(year + 1)} hitSlop={12} style={mp.arw} accessibilityLabel="다음 해"><IconChevron size={22} color={C.ink2} /></Pressable>
+      </View>
+      <View style={mp.grid}>
+        {[...Array(12)].map((_, i) => {
+          const on = year === y && i === m;
+          const isNow = year === now.getFullYear() && i === now.getMonth();
+          return (
+            <Pressable
+              key={i}
+              style={[mp.cell, on && { backgroundColor: theme.a }, !on && isNow && { backgroundColor: theme.s }]}
+              onPress={() => { onPick && onPick(year, i); closeSheet(); }}
+            >
+              <Text style={[mp.cellTx, on && { color: '#fff', fontWeight: '800' }, !on && isNow && { color: theme.a, fontWeight: '700' }]}>{i + 1}월</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+const mp = StyleSheet.create({
+  yearRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24, marginBottom: 18 },
+  arw: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: C.soft },
+  year: { fontSize: 22, fontWeight: '800', color: C.ink, minWidth: 100, textAlign: 'center' },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 10 },
+  cell: { width: '31.5%', height: 56, borderRadius: 16, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
+  cellTx: { fontSize: 16, fontWeight: '600', color: C.ink2 },
+});
 
 // ── 테마 색 ──────────────────────────────
 export function ThemeSheet() {

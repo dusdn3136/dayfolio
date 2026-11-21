@@ -11,7 +11,7 @@ import JournalScreen from './src/screens/JournalScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
 import DaySheet from './src/sheets/DaySheet';
 import EventForm from './src/sheets/EventForm';
-import { CategorySheet, MemoSheet, ThemeSheet } from './src/sheets/MiscSheets';
+import { CategorySheet, MemoSheet, MonthPickerSheet, ThemeSheet } from './src/sheets/MiscSheets';
 import { IconBook, IconCalendar, IconChevron, IconGear, IconPlus } from './src/components/Icons';
 
 export default function App() {
@@ -49,11 +49,16 @@ function Main() {
   return (
     <SafeAreaView style={st.root} edges={['top']}>
       <View style={st.header}>
-        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+        <Pressable
+          disabled={!showNav}
+          onPress={() => openSheet('month', { y: ym.y, m: ym.m, onPick: (y, m) => setYm({ y, m }) })}
+          style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}
+          accessibilityLabel="년도와 월 고르기"
+        >
           <Text style={st.h1}>{title}</Text>
-          {tab === 'cal' ? <Text style={st.yr}>{ym.y}</Text> : null}
-          {tab === 'jr' ? <Text style={st.yr}>{ym.y}년 {ym.m + 1}월</Text> : null}
-        </View>
+          {tab === 'cal' ? <Text style={st.yr}>{ym.y} ▾</Text> : null}
+          {tab === 'jr' ? <Text style={st.yr}>{ym.y}년 {ym.m + 1}월 ▾</Text> : null}
+        </Pressable>
         {showNav ? (
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Pressable style={st.tbtn} onPress={goToday}><Text style={st.tbtnTx}>오늘</Text></Pressable>
@@ -126,7 +131,7 @@ function TabBar({ tab, setTab }) {
   );
 }
 
-const SHEETS = { day: DaySheet, event: EventForm, cats: CategorySheet, memo: MemoSheet, theme: ThemeSheet };
+const SHEETS = { day: DaySheet, event: EventForm, cats: CategorySheet, memo: MemoSheet, theme: ThemeSheet, month: MonthPickerSheet };
 const HEIGHT = { day: '78%', event: '78%', memo: '78%' };
 
 // 한 번에 맨 위 시트 하나만 보여주고, 닫으면 아래 시트로 돌아간다
