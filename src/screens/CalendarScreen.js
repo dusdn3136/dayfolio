@@ -38,7 +38,8 @@ export default function CalendarScreen({ year, month, onMove }) {
   const today = todayStr();
   const [viewH, setViewH] = useState(0);
   const [topH, setTopH] = useState(0);
-  const gridH = viewH && topH ? viewH - topH - 28 : 0;
+  // 달력이 화면 아래 끝까지 딱 차게 (아래 '다가오는 기한'이 어중간하게 걸쳐 보이지 않도록)
+  const gridH = viewH && topH ? viewH - topH - 2 : 0;
   const v = data.diary[today];
   const m = v && v.mood != null ? MOODS[v.mood] : null;
   const dues = data.events.filter((e) => e.kind === 'due' && !e.done && e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
