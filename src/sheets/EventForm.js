@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Switch, View } from 'react-native';
 import { Text, TextInput } from '../components/T';
-import { C, D, dLabel, md, todayStr, uid, ymd } from '../constants';
+import { C, dLabel, md, todayStr, uid } from '../constants';
 import { useApp } from '../store';
 import { Chips, DateField, SheetTop } from '../components/ui';
-import { IconX } from '../components/Icons';
+import RangeCalendar from '../components/RangeCalendar';
 
 export default function EventForm({ id, date }) {
   const { data, update, closeSheet, openSheet, toast, theme } = useApp();
@@ -15,6 +15,7 @@ export default function EventForm({ id, date }) {
   const isRange = orig && orig.kind === 'due' && orig.start && orig.start < orig.date;
   const [startDate, setStartDate] = useState(orig ? (isRange ? orig.start : orig.date) : base);
   const [endDate, setEndDate] = useState(isRange ? orig.date : '');
+  const [showCal, setShowCal] = useState(!id);
   const [allDay, setAllDay] = useState(!(orig && orig.time));
   const [time, setTime] = useState((orig && orig.time) || '09:00');
   const [cat, setCat] = useState(orig ? orig.cat : data.cats[0] && data.cats[0].k);
@@ -58,7 +59,6 @@ export default function EventForm({ id, date }) {
     ]);
 
   const ranged = !!endDate && endDate !== startDate;
-  const addEnd = () => setEndDate(ymd(new Date(D(startDate).getTime() + 86400000)));
   const hint = ranged ? `${md(startDate)}부터 ${md(endDate)}까지 달력에 막대로 표시되고, 끝나는 날 기준 ${dLabel(endDate)}로 알려드려요.` : '';
   const sw = { trackColor: { true: theme.a, false: '#dcdce0' }, thumbColor: '#fff', ios_backgroundColor: '#dcdce0' };
 
@@ -67,21 +67,20 @@ export default function EventForm({ id, date }) {
       <SheetTop left="취소" onLeft={closeSheet} title={id ? '일정 수정' : '새 일정'} right="저장" onRight={save} rightColor={theme.a} />
       <TextInput style={st.title} placeholder="제목을 입력하세요" placeholderTextColor={C.faint} value={title} onChangeText={setTitle} maxLength={40} autoFocus={!id} returnKeyType="done" />
       <View style={st.group}>
-        <Row label={ranged ? '시작일' : '날짜'}><DateField value={startDate} onChange={setStartDate} /></Row>
-        <Row label="끝나는 날" sep>
-          {endDate ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <DateField value={endDate} onChange={setEndDate} />
-              <Pressable onPress={() => setEndDate('')} hitSlop={10} style={st.clear} accessibilityLabel="끝나는 날 지우기">
-                <IconX size={11} color={C.sub} />
-              </Pressable>
-            </View>
-          ) : (
-            <Pressable onPress={addEnd} hitSlop={8}>
-              <Text style={[st.addEnd, { color: theme.a }]}>+ 기간으로 정하기</Text>
-            </Pressable>
-          )}
-        </Row>
+        <Pressable onPress={() => setShowCal(!showCal)}>
+          <Row label={ranged ? '기간' : '날짜'}>
+            <Text style={[st.dateTx, { color: theme.a }]}>{ranged ? `${md(startDate)} ~ ${md(endDate)}` : md(startDate)}</Text>
+          </Row>
+        </Pressable>
+        {showCal ? (
+          <RangeCalendar
+            start={startDate}
+            end={endDate}
+            accent={theme.a}
+            soft={theme.s}
+            onChange={(a, b) => { setStartDate(a); setEndDate(b); }}
+          />
+        ) : null}
         {!ranged ? <Row label="하루 종일" sep><Switch value={allDay} onValueChange={setAllDay} {...sw} /></Row> : null}
         {!ranged && !allDay ? <Row label="시간" sep><DateField mode="time" value={time} onChange={setTime} /></Row> : null}
       </View>
@@ -128,7 +127,6 @@ const st = StyleSheet.create({
   glabel: { flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 4, marginBottom: 8 },
   glabelTx: { fontSize: 13, color: C.sub, fontWeight: '700' },
   note: { minHeight: 80, padding: 14, fontSize: 15, color: C.ink },
-  addEnd: { fontSize: 15, fontWeight: '700' },
-  clear: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#e6e6ea', alignItems: 'center', justifyContent: 'center' },
+  dateTx: { fontSize: 15, fontWeight: '700', flexShrink: 1, textAlign: 'right' },
   del: { color: C.sun, fontSize: 15, fontWeight: '700', textAlign: 'center' },
 });

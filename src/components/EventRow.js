@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import React, { useRef } from 'react';
+import { Animated, PanResponder, Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
 import { C, D, WD, dLabel, dayDiff, mdShort, todayStr } from '../constants';
 import { catOf, useApp } from '../store';
@@ -10,8 +10,47 @@ export default function EventRow({ e, withDate }) {
   const cat = catOf(data, e.cat);
   const far = dayDiff(e.date, todayStr()) > 7;
   const d = D(e.date);
+
+  // 왼쪽으로 밀면 삭제 버튼, 끝까지 밀면 바로 삭제
+  const OPEN = -84;
+  const x = useRef(new Animated.Value(0)).current;
+  const opened = useRef(false);
+  const removeRef = useRef(null);
+  removeRef.current = () => {
+    update((dr) => { dr.events = dr.events.filter((v) => v.id !== e.id); });
+    toast('삭제했어요');
+  };
+  const snap = (to) => {
+    opened.current = to !== 0;
+    Animated.spring(x, { toValue: to, useNativeDriver: true, bounciness: 0 }).start();
+  };
+  const pan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) =>
+        Math.abs(g.dx) > 12 && Math.abs(g.dx) > Math.abs(g.dy) * 1.8 && (g.dx < 0 || opened.current),
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderMove: (_, g) => {
+        const base = opened.current ? OPEN : 0;
+        x.setValue(Math.min(0, base + g.dx));
+      },
+      onPanResponderRelease: (_, g) => {
+        const pos = (opened.current ? OPEN : 0) + g.dx;
+        if (pos < -200) {
+          Animated.timing(x, { toValue: -500, duration: 160, useNativeDriver: true }).start(() => removeRef.current());
+        } else if (pos < OPEN / 2) snap(OPEN);
+        else snap(0);
+      },
+      onPanResponderTerminate: () => snap(opened.current ? OPEN : 0),
+    })
+  ).current;
+
   return (
-    <Pressable style={st.row} onPress={() => openSheet('event', { id: e.id })}>
+    <View style={st.wrap}>
+      <Pressable style={st.delBg} onPress={() => removeRef.current()} accessibilityLabel="일정 삭제">
+        <Text style={st.delTx}>삭제</Text>
+      </Pressable>
+      <Animated.View {...pan.panHandlers} style={{ transform: [{ translateX: x }], backgroundColor: '#fff' }}>
+    <Pressable style={st.row} onPress={() => (opened.current ? snap(0) : openSheet('event', { id: e.id }))}>
       <View style={[st.dot, { backgroundColor: cat.c }, e.kind === 'due' && { borderRadius: 3 }]} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text numberOfLines={1} style={[st.title, e.done && st.done]}>{e.title}</Text>
@@ -42,10 +81,15 @@ export default function EventRow({ e, withDate }) {
         }}
       />
     </Pressable>
+      </Animated.View>
+    </View>
   );
 }
 
 const st = StyleSheet.create({
+  wrap: { overflow: 'hidden' },
+  delBg: { position: 'absolute', right: 0, top: 0, bottom: 1, width: 84, backgroundColor: C.sun, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
+  delTx: { color: '#fff', fontSize: 15, fontWeight: '700' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: C.line },
   dot: { width: 10, height: 10, borderRadius: 5 },
   title: { fontSize: 16, fontWeight: '600', color: C.ink },
