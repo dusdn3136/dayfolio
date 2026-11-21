@@ -69,7 +69,7 @@ function Main() {
       </View>
 
       <View style={{ flex: 1 }}>
-        {tab === 'cal' ? <CalendarScreen year={ym.y} month={ym.m} /> : null}
+        {tab === 'cal' ? <CalendarScreen year={ym.y} month={ym.m} onMove={move} /> : null}
         {tab === 'jr' ? <JournalScreen year={ym.y} month={ym.m} /> : null}
         {tab === 'set' ? <SettingsScreen /> : null}
       </View>

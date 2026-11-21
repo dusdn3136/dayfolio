@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Animated, Dimensions, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
 import { C, MOODS, dLabel, dayDiff, hasDiary, md, todayStr } from '../constants';
 import { useApp } from '../store';
@@ -7,8 +7,34 @@ import MonthGrid from '../components/MonthGrid';
 import { IconPen } from '../components/Icons';
 import Mochi from '../components/Mochi';
 
-export default function CalendarScreen({ year, month }) {
+export default function CalendarScreen({ year, month, onMove }) {
   const { data, theme, openSheet } = useApp();
+  // 달력을 좌우로 밀어서 이전 달 / 다음 달
+  const slide = useRef(new Animated.Value(0)).current;
+  const moveRef = useRef(onMove);
+  moveRef.current = onMove;
+  const pan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 18 && Math.abs(g.dx) > Math.abs(g.dy) * 1.8,
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderMove: (_, g) => slide.setValue(g.dx * 0.6),
+      onPanResponderRelease: (_, g) => {
+        const W = Dimensions.get('window').width;
+        if (Math.abs(g.dx) > 60 || Math.abs(g.vx) > 0.5) {
+          const dir = g.dx < 0 ? 1 : -1;
+          Animated.timing(slide, { toValue: -dir * W * 0.5, duration: 120, useNativeDriver: true }).start(() => {
+            moveRef.current && moveRef.current(dir);
+            slide.setValue(dir * W * 0.5);
+            Animated.timing(slide, { toValue: 0, duration: 160, useNativeDriver: true }).start();
+          });
+        } else {
+          Animated.spring(slide, { toValue: 0, useNativeDriver: true }).start();
+        }
+      },
+      onPanResponderTerminate: () => Animated.spring(slide, { toValue: 0, useNativeDriver: true }).start(),
+    })
+  ).current;
+  const fade = slide.interpolate({ inputRange: [-300, 0, 300], outputRange: [0.3, 1, 0.3], extrapolate: 'clamp' });
   const today = todayStr();
   const [viewH, setViewH] = useState(0);
   const [topH, setTopH] = useState(0);
@@ -39,7 +65,9 @@ export default function CalendarScreen({ year, month }) {
         ))}
       </View>
       </View>
-      <MonthGrid year={year} month={month} height={gridH} onPressDay={(s) => openSheet('day', { date: s, tab: 'ev' })} />
+      <Animated.View {...pan.panHandlers} style={{ transform: [{ translateX: slide }], opacity: fade }}>
+        <MonthGrid year={year} month={month} height={gridH} onPressDay={(s) => openSheet('day', { date: s, tab: 'ev' })} />
+      </Animated.View>
 
       {dues.length ? (
         <>
