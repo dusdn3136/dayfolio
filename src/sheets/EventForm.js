@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { Text, TextInput } from '../components/T';
 import { C, dLabel, md, todayStr, uid } from '../constants';
 import { useApp } from '../store';
 import { Chips, DateField, SheetTop } from '../components/ui';

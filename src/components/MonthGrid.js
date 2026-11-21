@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './T';
 import { C, MOODS, dayDiff, range, todayStr, ymd } from '../constants';
 import { catOf, useApp } from '../store';
 import { IconMemoBadge } from './Icons';

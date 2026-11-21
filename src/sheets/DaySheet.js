@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Alert, Image, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Modal, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../components/T';
 import * as ImagePicker from 'expo-image-picker';
 import { File, Directory, Paths } from 'expo-file-system';
 import { C, MOODS, WD, D, dayDiff, hasDiary, onDay, todayStr, uid } from '../constants';

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/T';
 import Constants from 'expo-constants';
 import { C } from '../constants';
 import { useApp } from '../store';

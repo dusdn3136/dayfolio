@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, KeyboardAvoidingView, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, KeyboardAvoidingView, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { FONTS, Text } from './src/components/T';
 import { StatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppProvider, useApp } from './src/store';
 import { C, todayStr } from './src/constants';
@@ -13,6 +15,9 @@ import { CategorySheet, MemoSheet, ThemeSheet } from './src/sheets/MiscSheets';
 import { IconBook, IconCalendar, IconChevron, IconGear, IconPlus } from './src/components/Icons';
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts(FONTS);
+  // 글꼴을 불러오는 짧은 순간은 빈 화면, 실패하면 기본 글꼴로라도 실행
+  if (!fontsLoaded && !fontError) return <View style={{ flex: 1, backgroundColor: '#fff' }} />;
   return (
     <SafeAreaProvider>
       <AppProvider>

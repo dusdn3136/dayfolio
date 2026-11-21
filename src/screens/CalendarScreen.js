@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/T';
 import { C, MOODS, dLabel, dayDiff, hasDiary, md, todayStr } from '../constants';
 import { useApp } from '../store';
 import MonthGrid from '../components/MonthGrid';
