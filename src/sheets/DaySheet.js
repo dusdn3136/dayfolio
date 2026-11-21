@@ -91,11 +91,25 @@ function EventsTab({ date, onAdd }) {
     .sort((a, b) => ((a.kind === 'due' ? '0' : '1') + (a.time || '99')).localeCompare((b.kind === 'due' ? '0' : '1') + (b.time || '99')));
   return (
     <View>
-      {evs.length ? evs.map((e) => <EventRow key={e.id} e={e} />) : <Empty>일정이 없어요</Empty>}
-      <Pressable style={st.addRow} onPress={onAdd}>
-        <IconPlus size={20} color={theme.a} />
-        <Text style={[st.addTx, { color: theme.a }]}>일정 추가</Text>
-      </Pressable>
+      {evs.length ? (
+        <>
+          {evs.map((e) => <EventRow key={e.id} e={e} />)}
+          <Pressable style={[st.addRow, { backgroundColor: theme.s }]} onPress={onAdd}>
+            <IconPlus size={18} color={theme.a} />
+            <Text style={[st.addTx, { color: theme.a }]}>일정 추가</Text>
+          </Pressable>
+        </>
+      ) : (
+        <View style={st.evEmpty}>
+          <Mochi mood={2} size={72} full />
+          <Text style={st.evEmptyT}>이 날은 아직 비어 있어요</Text>
+          <Text style={st.evEmptyS}>약속이나 할 일을 적어둘까요?</Text>
+          <Pressable style={[st.evEmptyBtn, { backgroundColor: theme.a }]} onPress={onAdd}>
+            <IconPlus size={16} color="#fff" />
+            <Text style={st.evEmptyBtnTx}>일정 추가</Text>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -321,7 +335,12 @@ const st = StyleSheet.create({
   tab: { flex: 1, height: 44, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
   tabOn: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
   tabTx: { fontSize: 16, fontWeight: '700', color: C.sub },
-  addRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16, marginTop: 10, borderRadius: 14, borderWidth: 1, borderStyle: 'dashed', borderColor: C.faint },
+  addRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 14, marginTop: 14, borderRadius: 14 },
+  evEmpty: { alignItems: 'center', paddingTop: 34, paddingBottom: 10 },
+  evEmptyT: { fontSize: 16, fontWeight: '700', color: C.ink, marginTop: 12 },
+  evEmptyS: { fontSize: 13.5, color: C.sub, marginTop: 4 },
+  evEmptyBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 18, height: 46, paddingHorizontal: 24, borderRadius: 23 },
+  evEmptyBtnTx: { color: '#fff', fontSize: 15, fontWeight: '700' },
   addTx: { fontSize: 15, fontWeight: '700' },
   memo: { borderWidth: 1, borderColor: C.line, borderRadius: 16, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 6, marginTop: 12 },
   memoHd: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
@@ -334,7 +353,7 @@ const st = StyleSheet.create({
   addBox: { width: 24, height: 24, borderRadius: 8, borderWidth: 1.8, borderStyle: 'dashed', borderColor: C.faint, alignItems: 'center', justifyContent: 'center' },
   addInput: { flex: 1, fontSize: 15, color: C.ink, paddingVertical: 4 },
   memoAdds: { flexDirection: 'row', gap: 8, marginTop: 14 },
-  memoAdd: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderStyle: 'dashed', borderColor: C.faint, borderRadius: 14, paddingVertical: 13 },
+  memoAdd: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: C.soft, borderRadius: 14, paddingVertical: 14 },
   memoAddTx: { fontSize: 14, fontWeight: '700', color: C.ink2 },
   cta: { alignItems: 'center', gap: 10, paddingTop: 30, paddingBottom: 10 },
   ctaBtn: { backgroundColor: C.ink, borderRadius: 14, paddingVertical: 13, paddingHorizontal: 22 },
