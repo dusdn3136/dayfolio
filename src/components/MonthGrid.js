@@ -146,7 +146,7 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
                     it.e.done && { opacity: 0.4 },
                   ]}
                 >
-                  <Text numberOfLines={1} ellipsizeMode="clip" style={[st.pillTx, due && { fontWeight: '700' }, it.e.done && { textDecorationLine: 'line-through' }]}>
+                  <Text numberOfLines={1} ellipsizeMode="clip" style={[st.pillTx, it.multi && it.len > 1 && { textAlign: 'center' }, due && { fontWeight: '700' }, it.e.done && { textDecorationLine: 'line-through' }]}>
                     {it.e.title}
                   </Text>
                 </View>
