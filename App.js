@@ -64,12 +64,11 @@ function Main() {
         {tab === 'set' ? <SettingsScreen /> : null}
       </View>
 
-      {tab !== 'set' ? (
+      {tab === 'cal' ? (
         <Fab
           accent={theme.a}
-          label={tab === 'jr' ? '오늘 일기 쓰기' : '일정 추가'}
+          label="일정 추가"
           onPress={() => {
-            if (tab === 'jr') return openSheet('day', { date: todayStr(), tab: 'dy' });
             const isThisMonth = ym.y === now.getFullYear() && ym.m === now.getMonth();
             const date = isThisMonth ? todayStr() : `${ym.y}-${String(ym.m + 1).padStart(2, '0')}-01`;
             openSheet('event', { date });
