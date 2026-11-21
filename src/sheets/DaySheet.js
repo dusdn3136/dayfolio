@@ -4,6 +4,7 @@ import { Text, TextInput } from '../components/T';
 import * as ImagePicker from 'expo-image-picker';
 import { File, Directory, Paths } from 'expo-file-system';
 import { C, MOODS, WD, D, dayDiff, hasDiary, onDay, todayStr, uid } from '../constants';
+import { holidayOf } from '../holidays';
 import { useApp } from '../store';
 import EventRow from '../components/EventRow';
 import Mochi from '../components/Mochi';
@@ -43,10 +44,14 @@ export default function DaySheet({ date, tab = 'ev' }) {
     })
   ).current;
   const d = D(date);
+  const holi = holidayOf(date);
   return (
     <View>
       <View style={st.head}>
-        <Text style={st.h3}>{`${d.getMonth() + 1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일`}</Text>
+        <View style={{ flexShrink: 1 }}>
+          <Text style={st.h3}>{`${d.getMonth() + 1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일`}</Text>
+          {holi ? <Text style={{ color: C.sun, fontSize: 13, fontWeight: '600', marginTop: 2 }}>{holi}</Text> : null}
+        </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <Text style={st.sub}>{n === 0 ? '오늘' : n > 0 ? `${n}일 후` : `${-n}일 전`}</Text>
           <Pressable onPress={closeSheet} hitSlop={10} style={st.close} accessibilityLabel="닫기">

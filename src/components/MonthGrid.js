@@ -5,6 +5,7 @@ import { C, MOODS, dayDiff, range, todayStr, ymd } from '../constants';
 import { catOf, useApp } from '../store';
 import { IconMemoBadge } from './Icons';
 import Mochi from './Mochi';
+import { holidayOf } from '../holidays';
 
 const LANE_TOP = 32;
 const LANE_H = 19;
@@ -44,8 +45,15 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
           const ec = Math.min(6, dayDiff(b, s0));
           return { e, sc, ec, len: ec - sc + 1, multi: a !== b, cl: a < s0, cr: b > s6 };
         })
+        .concat(
+          days
+            .map((dd, c) => ({ c, name: holidayOf(ymd(dd)) }))
+            .filter((h) => h.name)
+            .map((h) => ({ e: { id: 'holi-' + h.c, title: h.name }, sc: h.c, ec: h.c, len: 1, holi: true }))
+        )
         .sort(
           (x, y) =>
+            (y.holi || false) - (x.holi || false) ||
             y.multi - x.multi ||
             y.len - x.len ||
             x.sc - y.sc ||
@@ -98,7 +106,7 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
               return (
                 <Pressable key={s} style={[st.cell, out && { opacity: 0.3 }]} onPress={() => onPressDay(s)} accessibilityLabel={`${d.getMonth() + 1}월 ${d.getDate()}일`}>
                   <View style={[st.num, isToday && { backgroundColor: theme.a }]}>
-                    <Text style={[st.numTx, d.getDay() === 0 && { color: C.sun }, isToday && { color: '#fff', fontWeight: '800' }]}>{d.getDate()}</Text>
+                    <Text style={[st.numTx, (d.getDay() === 0 || holidayOf(s)) && { color: C.sun }, isToday && { color: '#fff', fontWeight: '800' }]}>{d.getDate()}</Text>
                   </View>
                   {hasMood ? <View style={st.mochi}><Mochi mood={dy.mood} size={18} /></View> : null}
                   {memos.length && !hasMood ? (
@@ -114,6 +122,13 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
             })}
           </View>
           {wk.items.map((it) => {
+            if (it.holi) {
+              return (
+                <View key={it.e.id + '-' + wi} pointerEvents="none" style={[st.barWrap, { left: `${(it.sc / 7) * 100}%`, width: `${100 / 7}%`, top: LANE_TOP + it.lane * LANE_H, justifyContent: 'center', paddingLeft: 5 }]}>
+                  <Text numberOfLines={1} ellipsizeMode="clip" style={st.holiTx}>{it.e.title}</Text>
+                </View>
+              );
+            }
             const col = catOf(data, it.e.cat).c;
             const left = `${(it.sc / 7) * 100}%`;
             const width = `${(it.len / 7) * 100}%`;
@@ -155,5 +170,6 @@ const st = StyleSheet.create({
   more: { position: 'absolute', left: 6, fontSize: 10, lineHeight: 16, color: C.sub, fontWeight: '700' },
   barWrap: { position: 'absolute', height: 17 },
   pill: { flex: 1, borderRadius: 5, justifyContent: 'center', paddingHorizontal: 4, overflow: 'hidden' },
+  holiTx: { fontSize: 10.5, fontWeight: '600', color: C.sun, letterSpacing: -0.5 },
   pillTx: { fontSize: 10.5, fontWeight: '600', color: C.ink, letterSpacing: -0.5 },
 });
