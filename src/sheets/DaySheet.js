@@ -25,7 +25,7 @@ function keepPhoto(uri) {
 const TAB_ORDER = ['ev', 'mm', 'dy'];
 
 export default function DaySheet({ date, tab = 'ev' }) {
-  const { setSheetProps, openSheet } = useApp();
+  const { setSheetProps, openSheet, closeSheet } = useApp();
   const n = dayDiff(date, todayStr());
   // 좌우로 밀어서 일정 · 메모 · 일기 전환
   const tabRef = useRef(tab);
@@ -46,7 +46,12 @@ export default function DaySheet({ date, tab = 'ev' }) {
     <View>
       <View style={st.head}>
         <Text style={st.h3}>{`${d.getMonth() + 1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일`}</Text>
-        <Text style={st.sub}>{n === 0 ? '오늘' : n > 0 ? `${n}일 후` : `${-n}일 전`}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Text style={st.sub}>{n === 0 ? '오늘' : n > 0 ? `${n}일 후` : `${-n}일 전`}</Text>
+          <Pressable onPress={closeSheet} hitSlop={10} style={st.close} accessibilityLabel="닫기">
+            <IconX size={14} color={C.ink2} />
+          </Pressable>
+        </View>
       </View>
       <Tabs tab={tab} date={date} onChange={(t) => setSheetProps({ tab: t })} />
       <View {...pan.panHandlers} style={{ minHeight: 360 }}>
@@ -302,7 +307,8 @@ function DiaryTab({ date }) {
 }
 
 const st = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
+  close: { width: 32, height: 32, borderRadius: 16, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
   h3: { fontSize: 21, fontWeight: '800', letterSpacing: -0.8, color: C.ink },
   sub: { fontSize: 13, color: C.sub, fontWeight: '600' },
   tabs: { flexDirection: 'row', backgroundColor: C.soft, borderRadius: 14, padding: 4, marginTop: 4, marginBottom: 8 },

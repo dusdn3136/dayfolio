@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Animated, KeyboardAvoidingView, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppProvider, useApp } from './src/store';
@@ -122,7 +122,7 @@ function TabBar({ tab, setTab }) {
 }
 
 const SHEETS = { day: DaySheet, event: EventForm, cats: CategorySheet, memo: MemoSheet, theme: ThemeSheet };
-const TALL = { day: true, event: true, memo: true };
+const HEIGHT = { day: '78%', event: '92%', memo: '92%' };
 
 // 한 번에 맨 위 시트 하나만 보여주고, 닫으면 아래 시트로 돌아간다
 function SheetHost() {
@@ -130,12 +130,33 @@ function SheetHost() {
   const insets = useSafeAreaInsets();
   const last = sheets.length - 1;
   const top = sheets[last];
+  // 손잡이를 아래로 끌어내리면 닫힘
+  const dragY = useRef(new Animated.Value(0)).current;
+  const closeRef = useRef(closeSheet);
+  closeRef.current = closeSheet;
+  useEffect(() => { dragY.setValue(0); }, [sheets.length]);
+  const pan = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_, g) => g.dy > 4,
+      onPanResponderMove: (_, g) => dragY.setValue(Math.max(0, g.dy)),
+      onPanResponderRelease: (_, g) => {
+        if (g.dy > 90 || g.vy > 1.2) {
+          Animated.timing(dragY, { toValue: 800, duration: 160, useNativeDriver: true }).start(() => { closeRef.current(); dragY.setValue(0); });
+        } else {
+          Animated.spring(dragY, { toValue: 0, useNativeDriver: true }).start();
+        }
+      },
+    })
+  ).current;
   return (
     <Modal visible={!!top} transparent animationType="slide" onRequestClose={closeSheet} statusBarTranslucent>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Pressable style={st.dim} onPress={closeSheet} accessibilityLabel="닫기" />
-        <View style={[st.sheet, top && TALL[top.type] && { height: '92%' }, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-          <View style={st.grab} />
+        <Animated.View style={[st.sheet, top && HEIGHT[top.type] && { height: HEIGHT[top.type] }, { paddingBottom: Math.max(insets.bottom, 16), transform: [{ translateY: dragY }] }]}>
+          <View {...pan.panHandlers} style={st.grabArea} accessibilityLabel="아래로 끌어서 닫기">
+            <View style={st.grab} />
+          </View>
           {/* 아래 시트는 숨겨만 두고 살아있게 해서, 돌아왔을 때 입력하던 내용이 남아있게 한다 */}
           {sheets.map((sh, i) => {
             const Comp = SHEETS[sh.type];
@@ -151,7 +172,7 @@ function SheetHost() {
               </ScrollView>
             );
           })}
-        </View>
+        </Animated.View>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -170,8 +191,9 @@ const st = StyleSheet.create({
   tabTx: { fontSize: 10.5, fontWeight: '600', color: '#b0b0b5' },
   fab: { position: 'absolute', right: 20, width: 56, height: 56, borderRadius: 20, alignItems: 'center', justifyContent: 'center', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
   dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.3)' },
-  sheet: { backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, maxHeight: '92%', paddingTop: 10 },
-  grab: { width: 38, height: 5, borderRadius: 5, backgroundColor: '#e2e2e6', alignSelf: 'center', marginBottom: 14 },
+  sheet: { backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, maxHeight: '92%' },
+  grabArea: { paddingTop: 10, paddingBottom: 14, alignItems: 'center' },
+  grab: { width: 44, height: 5, borderRadius: 5, backgroundColor: '#d6d6db' },
   toastWrap: { position: 'absolute', left: 0, right: 0, bottom: 110, alignItems: 'center' },
   toast: { backgroundColor: 'rgba(30,30,30,.92)', borderRadius: 14, paddingVertical: 11, paddingHorizontal: 18 },
   toastTx: { color: '#fff', fontSize: 14, fontWeight: '600' },
