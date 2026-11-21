@@ -1,0 +1,161 @@
+import React, { useState } from 'react';
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppProvider, useApp } from './src/store';
+import { C, todayStr } from './src/constants';
+import CalendarScreen from './src/screens/CalendarScreen';
+import JournalScreen from './src/screens/JournalScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import DaySheet from './src/sheets/DaySheet';
+import EventForm from './src/sheets/EventForm';
+import { CategorySheet, MemoSheet, ThemeSheet } from './src/sheets/MiscSheets';
+import { IconBook, IconCalendar, IconChevron, IconGear, IconPlus } from './src/components/Icons';
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppProvider>
+        <StatusBar style="dark" />
+        <Main />
+      </AppProvider>
+    </SafeAreaProvider>
+  );
+}
+
+function Main() {
+  const { data, theme, openSheet, sheets, toastMsg } = useApp();
+  const now = new Date();
+  const [tab, setTab] = useState('cal');
+  const [ym, setYm] = useState({ y: now.getFullYear(), m: now.getMonth() });
+
+  if (!data) {
+    return (
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+  const move = (n) => setYm(({ y, m }) => { const d = new Date(y, m + n, 1); return { y: d.getFullYear(), m: d.getMonth() }; });
+  const goToday = () => setYm({ y: now.getFullYear(), m: now.getMonth() });
+  const showNav = tab !== 'set';
+  const title = tab === 'set' ? '설정' : tab === 'jr' ? '일기장' : `${ym.m + 1}월`;
+
+  return (
+    <SafeAreaView style={st.root} edges={['top']}>
+      <View style={st.header}>
+        <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
+          <Text style={st.h1}>{title}</Text>
+          {tab === 'cal' ? <Text style={st.yr}>{ym.y}</Text> : null}
+          {tab === 'jr' ? <Text style={st.yr}>{ym.y}년 {ym.m + 1}월</Text> : null}
+        </View>
+        {showNav ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Pressable style={st.tbtn} onPress={goToday}><Text style={st.tbtnTx}>오늘</Text></Pressable>
+            <Pressable style={st.arw} onPress={() => move(-1)} hitSlop={6} accessibilityLabel="이전 달"><IconChevron dir="left" color={C.ink2} /></Pressable>
+            <Pressable style={st.arw} onPress={() => move(1)} hitSlop={6} accessibilityLabel="다음 달"><IconChevron color={C.ink2} /></Pressable>
+          </View>
+        ) : null}
+      </View>
+
+      <View style={{ flex: 1 }}>
+        {tab === 'cal' ? <CalendarScreen year={ym.y} month={ym.m} /> : null}
+        {tab === 'jr' ? <JournalScreen year={ym.y} month={ym.m} /> : null}
+        {tab === 'set' ? <SettingsScreen /> : null}
+      </View>
+
+      <TabBar tab={tab} setTab={setTab} onPlus={() => {
+        const isThisMonth = ym.y === now.getFullYear() && ym.m === now.getMonth();
+        const date = isThisMonth ? todayStr() : `${ym.y}-${String(ym.m + 1).padStart(2, '0')}-01`;
+        openSheet('event', { date });
+      }} accent={theme.a} />
+
+      <SheetHost />
+      {toastMsg ? (
+        <View pointerEvents="none" style={st.toastWrap}>
+          <View style={st.toast}><Text style={st.toastTx}>{toastMsg}</Text></View>
+        </View>
+      ) : null}
+    </SafeAreaView>
+  );
+}
+
+function TabBar({ tab, setTab, onPlus, accent }) {
+  const insets = useSafeAreaInsets();
+  const item = (k, label, Icon) => {
+    const on = tab === k;
+    return (
+      <Pressable key={k} style={st.tabItem} onPress={() => setTab(k)} accessibilityRole="tab" accessibilityState={{ selected: on }}>
+        <Icon color={on ? C.ink : '#b0b0b5'} />
+        <Text style={[st.tabTx, on && { color: C.ink }]}>{label}</Text>
+      </Pressable>
+    );
+  };
+  return (
+    <View style={[st.tabbar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
+      {item('cal', '캘린더', IconCalendar)}
+      {item('jr', '일기장', IconBook)}
+      <Pressable style={st.plusWrap} onPress={onPlus} accessibilityLabel="일정 추가">
+        <View style={[st.plus, { backgroundColor: accent, shadowColor: accent }]}><IconPlus color="#fff" /></View>
+      </Pressable>
+      {item('set', '설정', IconGear)}
+    </View>
+  );
+}
+
+const SHEETS = { day: DaySheet, event: EventForm, cats: CategorySheet, memo: MemoSheet, theme: ThemeSheet };
+const TALL = { event: true, memo: true };
+
+// 한 번에 맨 위 시트 하나만 보여주고, 닫으면 아래 시트로 돌아간다
+function SheetHost() {
+  const { sheets, closeSheet } = useApp();
+  const insets = useSafeAreaInsets();
+  const last = sheets.length - 1;
+  const top = sheets[last];
+  return (
+    <Modal visible={!!top} transparent animationType="slide" onRequestClose={closeSheet} statusBarTranslucent>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <Pressable style={st.dim} onPress={closeSheet} accessibilityLabel="닫기" />
+        <View style={[st.sheet, top && TALL[top.type] && { height: '92%' }, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+          <View style={st.grab} />
+          {/* 아래 시트는 숨겨만 두고 살아있게 해서, 돌아왔을 때 입력하던 내용이 남아있게 한다 */}
+          {sheets.map((sh, i) => {
+            const Comp = SHEETS[sh.type];
+            return (
+              <ScrollView
+                key={i}
+                style={i === last ? { flexGrow: 0, flexShrink: 1 } : { display: 'none' }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
+              >
+                <Comp {...sh.props} />
+              </ScrollView>
+            );
+          })}
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+const st = StyleSheet.create({
+  root: { flex: 1, backgroundColor: C.bg },
+  header: { paddingHorizontal: 18, paddingTop: 10, paddingBottom: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 58 },
+  h1: { fontSize: 26, fontWeight: '800', letterSpacing: -1, color: C.ink },
+  yr: { fontSize: 13, color: C.sub, fontWeight: '600' },
+  tbtn: { borderWidth: 1, borderColor: C.line, borderRadius: 10, paddingVertical: 6, paddingHorizontal: 11, marginRight: 6 },
+  tbtnTx: { fontSize: 13, fontWeight: '600', color: C.ink },
+  arw: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
+  tabbar: { flexDirection: 'row', alignItems: 'flex-start', paddingTop: 8, borderTopWidth: 1, borderTopColor: C.line, backgroundColor: '#fff' },
+  tabItem: { flex: 1, alignItems: 'center', gap: 3 },
+  tabTx: { fontSize: 10.5, fontWeight: '600', color: '#b0b0b5' },
+  plusWrap: { width: 76, alignItems: 'center' },
+  plus: { width: 50, height: 50, borderRadius: 17, alignItems: 'center', justifyContent: 'center', marginTop: -2, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
+  dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.3)' },
+  sheet: { backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, maxHeight: '92%', paddingTop: 10 },
+  grab: { width: 38, height: 5, borderRadius: 5, backgroundColor: '#e2e2e6', alignSelf: 'center', marginBottom: 14 },
+  toastWrap: { position: 'absolute', left: 0, right: 0, bottom: 110, alignItems: 'center' },
+  toast: { backgroundColor: 'rgba(30,30,30,.92)', borderRadius: 14, paddingVertical: 11, paddingHorizontal: 18 },
+  toastTx: { color: '#fff', fontSize: 14, fontWeight: '600' },
+});

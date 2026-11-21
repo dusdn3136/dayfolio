@@ -1,0 +1,81 @@
+import React from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { C, MOODS, dLabel, dayDiff, hasDiary, md, todayStr } from '../constants';
+import { useApp } from '../store';
+import MonthGrid from '../components/MonthGrid';
+import { IconPen } from '../components/Icons';
+
+export default function CalendarScreen({ year, month }) {
+  const { data, theme, openSheet } = useApp();
+  const today = todayStr();
+  const v = data.diary[today];
+  const m = v && v.mood != null ? MOODS[v.mood] : null;
+  const dues = data.events.filter((e) => e.kind === 'due' && !e.done && e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
+  const todos = data.memos
+    .filter((x) => x.type === 'check' && x.date >= today && x.items.some((i) => !i.ok))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  return (
+    <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+      <Pressable style={[st.todayCard, { backgroundColor: theme.s }]} onPress={() => openSheet('day', { date: today, tab: 'dy' })}>
+        <View style={[st.todayIc, m && { backgroundColor: m.c }]}>{!m ? <IconPen color={theme.a} /> : null}</View>
+        <View style={{ flex: 1 }}>
+          <Text style={[st.todayL, { color: theme.a }]}>오늘의 기록{m ? ` · ${m.n}` : ''}</Text>
+          <Text numberOfLines={1} style={st.todayS}>
+            {hasDiary(v) ? (v.text || '사진으로 남긴 하루').split('\n')[0] : '오늘 하루는 어땠나요? 한 줄 남겨보세요'}
+          </Text>
+        </View>
+      </Pressable>
+
+      <View style={st.dow}>
+        {'일월화수목금토'.split('').map((w, i) => (
+          <Text key={w} style={[st.dowTx, i === 0 && { color: C.sun }]}>{w}</Text>
+        ))}
+      </View>
+      <MonthGrid year={year} month={month} onPressDay={(s) => openSheet('day', { date: s, tab: 'ev' })} />
+
+      {dues.length ? (
+        <>
+          <Text style={st.secT}>다가오는 기한</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.chipsRow}>
+            {dues.map((e) => (
+              <Pressable key={e.id} style={st.chip} onPress={() => openSheet('event', { id: e.id })}>
+                <Text style={[st.chipBig, { color: dayDiff(e.date, today) > 7 ? C.ink : theme.a }]}>{dLabel(e.date)}</Text>
+                <Text numberOfLines={1} style={st.chipTx}>{e.title}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </>
+      ) : null}
+
+      {todos.length ? (
+        <>
+          <Text style={st.secT}>챙길 것</Text>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.chipsRow}>
+            {todos.map((x) => (
+              <Pressable key={x.id} style={st.chip} onPress={() => openSheet('day', { date: x.date, tab: 'mm' })}>
+                <Text style={[st.chipBig, { fontSize: 15 }]}>{x.date === today ? '오늘' : md(x.date).replace(/ \(.\)/, '')}</Text>
+                <Text numberOfLines={1} style={st.chipTx}>{x.title || '체크리스트'}</Text>
+                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.a, marginTop: 4 }}>{x.items.filter((i) => !i.ok).length}개 남음</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        </>
+      ) : null}
+    </ScrollView>
+  );
+}
+
+const st = StyleSheet.create({
+  todayCard: { marginHorizontal: 14, marginTop: 4, marginBottom: 14, borderRadius: 18, paddingVertical: 14, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  todayIc: { width: 34, height: 34, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' },
+  todayL: { fontSize: 12, fontWeight: '700' },
+  todayS: { fontSize: 14.5, fontWeight: '500', marginTop: 2, color: C.ink2 },
+  dow: { flexDirection: 'row', paddingHorizontal: 8, paddingBottom: 4 },
+  dowTx: { flex: 1, fontSize: 11, color: C.sub, fontWeight: '600', paddingLeft: 6 },
+  secT: { fontSize: 15, fontWeight: '800', marginTop: 24, marginHorizontal: 18, marginBottom: 10, color: C.ink },
+  chipsRow: { gap: 8, paddingHorizontal: 18 },
+  chip: { borderWidth: 1, borderColor: C.line, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14, minWidth: 128, maxWidth: 180 },
+  chipBig: { fontSize: 17, fontWeight: '800', color: C.ink },
+  chipTx: { fontSize: 13, marginTop: 2, color: C.ink2 },
+});
