@@ -123,7 +123,7 @@ function TabBar({ tab, setTab }) {
 }
 
 const SHEETS = { day: DaySheet, event: EventForm, cats: CategorySheet, memo: MemoSheet, theme: ThemeSheet };
-const TALL = { event: true, memo: true };
+const TALL = { day: true, event: true, memo: true };
 
 // 한 번에 맨 위 시트 하나만 보여주고, 닫으면 아래 시트로 돌아간다
 function SheetHost() {

@@ -46,8 +46,8 @@ function Tabs({ tab, date, onChange }) {
   return (
     <View style={st.tabs}>
       {items.map(([k, l]) => (
-        <Pressable key={k} onPress={() => onChange(k)} style={[st.tab, tab === k && st.tabOn]}>
-          <Text style={[st.tabTx, tab === k && { color: C.ink }]}>{l}</Text>
+        <Pressable key={k} onPress={() => onChange(k)} style={[st.tab, tab === k && st.tabOn]} accessibilityRole="tab" accessibilityState={{ selected: tab === k }}>
+          <Text style={[st.tabTx, tab === k && { color: C.ink, fontWeight: '800' }]}>{l}</Text>
         </Pressable>
       ))}
     </View>
@@ -286,11 +286,11 @@ const st = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 },
   h3: { fontSize: 21, fontWeight: '800', letterSpacing: -0.8, color: C.ink },
   sub: { fontSize: 13, color: C.sub, fontWeight: '600' },
-  tabs: { flexDirection: 'row', gap: 20, borderBottomWidth: 1, borderBottomColor: C.line, marginBottom: 6 },
-  tab: { paddingVertical: 10, borderBottomWidth: 2.5, borderBottomColor: 'transparent', marginBottom: -1 },
-  tabOn: { borderBottomColor: C.ink },
-  tabTx: { fontSize: 15, fontWeight: '700', color: C.faint },
-  addRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 14 },
+  tabs: { flexDirection: 'row', backgroundColor: C.soft, borderRadius: 14, padding: 4, marginTop: 4, marginBottom: 8 },
+  tab: { flex: 1, height: 44, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
+  tabOn: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 1 }, elevation: 2 },
+  tabTx: { fontSize: 16, fontWeight: '700', color: C.sub },
+  addRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16, marginTop: 10, borderRadius: 14, borderWidth: 1, borderStyle: 'dashed', borderColor: C.faint },
   addTx: { fontSize: 15, fontWeight: '700' },
   memo: { borderWidth: 1, borderColor: C.line, borderRadius: 16, paddingHorizontal: 14, paddingTop: 12, paddingBottom: 6, marginTop: 12 },
   memoHd: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
