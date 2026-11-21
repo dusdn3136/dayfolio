@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Switch, View } from 'react-native';
 import { Text, TextInput } from '../components/T';
-import { C, dLabel, md, todayStr, uid } from '../constants';
+import { C, D, dLabel, md, todayStr, uid, ymd } from '../constants';
 import { useApp } from '../store';
 import { Chips, DateField, SheetTop } from '../components/ui';
+import { IconX } from '../components/Icons';
 
 export default function EventForm({ id, date }) {
   const { data, update, closeSheet, openSheet, toast, theme } = useApp();
   const orig = id ? data.events.find((e) => e.id === id) : null;
   const base = date || todayStr();
   const [title, setTitle] = useState(orig ? orig.title : '');
-  const [kind, setKind] = useState(orig ? orig.kind : 'event');
-  const [evDate, setEvDate] = useState(orig && orig.kind === 'event' ? orig.date : base);
+  // 날짜 하나만 고르면 그날 일정, 끝나는 날까지 고르면 기간(기한, D-day 표시)
+  const isRange = orig && orig.kind === 'due' && orig.start && orig.start < orig.date;
+  const [startDate, setStartDate] = useState(orig ? (isRange ? orig.start : orig.date) : base);
+  const [endDate, setEndDate] = useState(isRange ? orig.date : '');
   const [allDay, setAllDay] = useState(!(orig && orig.time));
   const [time, setTime] = useState((orig && orig.time) || '09:00');
-  const [due, setDue] = useState(orig && orig.kind === 'due' ? orig.date : base);
-  const [useRange, setUseRange] = useState(!!(orig && orig.start));
-  const [start, setStart] = useState((orig && orig.start) || base);
   const [cat, setCat] = useState(orig ? orig.cat : data.cats[0] && data.cats[0].k);
   const [note, setNote] = useState((orig && orig.note) || '');
 
@@ -28,10 +28,11 @@ export default function EventForm({ id, date }) {
     const t = title.trim();
     if (!t) return toast('제목을 입력해주세요');
     let patch;
-    if (kind === 'event') patch = { kind, date: evDate, time: allDay ? '' : time, start: '' };
-    else {
-      if (useRange && start > due) return toast('시작일이 마감일보다 늦어요');
-      patch = { kind, date: due, start: useRange ? start : '', time: '' };
+    if (endDate && endDate !== startDate) {
+      if (endDate < startDate) return toast('끝나는 날이 시작일보다 빨라요');
+      patch = { kind: 'due', start: startDate, date: endDate, time: '' };
+    } else {
+      patch = { kind: 'event', date: startDate, start: '', time: allDay ? '' : time };
     }
     Object.assign(patch, { title: t, cat: catValue, note: note.trim() });
     update((dr) => {
@@ -43,7 +44,7 @@ export default function EventForm({ id, date }) {
   };
 
   const remove = () =>
-    Alert.alert(kind === 'event' ? '이 일정을 삭제할까요?' : '이 기한을 삭제할까요?', '', [
+    Alert.alert('이 일정을 삭제할까요?', '', [
       { text: '취소', style: 'cancel' },
       {
         text: '삭제',
@@ -56,38 +57,35 @@ export default function EventForm({ id, date }) {
       },
     ]);
 
-  const hint = useRange && start < due ? `${md(start)}부터 ${md(due)}까지 달력에 막대로 표시되고, 마감 기준 ${dLabel(due)}로 알려드려요.` : `${md(due)} 마감 · 오늘 기준 ${dLabel(due)}예요.`;
+  const ranged = !!endDate && endDate !== startDate;
+  const addEnd = () => setEndDate(ymd(new Date(D(startDate).getTime() + 86400000)));
+  const hint = ranged ? `${md(startDate)}부터 ${md(endDate)}까지 달력에 막대로 표시되고, 끝나는 날 기준 ${dLabel(endDate)}로 알려드려요.` : '';
   const sw = { trackColor: { true: theme.a, false: '#dcdce0' }, thumbColor: '#fff', ios_backgroundColor: '#dcdce0' };
 
   return (
     <View>
-      <SheetTop left="취소" onLeft={closeSheet} title={id ? (kind === 'event' ? '일정 수정' : '기한 수정') : kind === 'event' ? '새 일정' : '새 기한'} right="저장" onRight={save} rightColor={theme.a} />
+      <SheetTop left="취소" onLeft={closeSheet} title={id ? '일정 수정' : '새 일정'} right="저장" onRight={save} rightColor={theme.a} />
       <TextInput style={st.title} placeholder="제목을 입력하세요" placeholderTextColor={C.faint} value={title} onChangeText={setTitle} maxLength={40} autoFocus={!id} returnKeyType="done" />
-      <View style={st.types}>
-        {[['event', '일정', '정해진 날 · 시간에'], ['due', '기한', '마감일까지 D-day로']].map(([k, n, d]) => (
-          <Pressable key={k} onPress={() => setKind(k)} style={[st.type, kind === k && { borderColor: theme.a, backgroundColor: theme.s }]}>
-            <Text style={[st.typeN, kind === k && { color: theme.a }]}>{n}</Text>
-            <Text style={st.typeD}>{d}</Text>
-          </Pressable>
-        ))}
+      <View style={st.group}>
+        <Row label={ranged ? '시작일' : '날짜'}><DateField value={startDate} onChange={setStartDate} /></Row>
+        <Row label="끝나는 날" sep>
+          {endDate ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <DateField value={endDate} onChange={setEndDate} />
+              <Pressable onPress={() => setEndDate('')} hitSlop={10} style={st.clear} accessibilityLabel="끝나는 날 지우기">
+                <IconX size={11} color={C.sub} />
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable onPress={addEnd} hitSlop={8}>
+              <Text style={[st.addEnd, { color: theme.a }]}>+ 기간으로 정하기</Text>
+            </Pressable>
+          )}
+        </Row>
+        {!ranged ? <Row label="하루 종일" sep><Switch value={allDay} onValueChange={setAllDay} {...sw} /></Row> : null}
+        {!ranged && !allDay ? <Row label="시간" sep><DateField mode="time" value={time} onChange={setTime} /></Row> : null}
       </View>
-
-      {kind === 'event' ? (
-        <View style={st.group}>
-          <Row label="날짜"><DateField value={evDate} onChange={setEvDate} /></Row>
-          <Row label="하루 종일" sep><Switch value={allDay} onValueChange={setAllDay} {...sw} /></Row>
-          {!allDay ? <Row label="시간" sep><DateField mode="time" value={time} onChange={setTime} /></Row> : null}
-        </View>
-      ) : (
-        <>
-          <View style={st.group}>
-            <Row label="마감일"><DateField value={due} onChange={setDue} /></Row>
-            <Row label="기간으로 설정" sep><Switch value={useRange} onValueChange={setUseRange} {...sw} /></Row>
-            {useRange ? <Row label="시작일" sep><DateField value={start} onChange={setStart} /></Row> : null}
-          </View>
-          <Text style={st.hint}>{hint}</Text>
-        </>
-      )}
+      {hint ? <Text style={st.hint}>{hint}</Text> : null}
 
       <View style={st.glabel}>
         <Text style={st.glabelTx}>분류</Text>
@@ -101,7 +99,7 @@ export default function EventForm({ id, date }) {
       </View>
       {id ? (
         <Pressable onPress={remove} style={{ paddingVertical: 12 }}>
-          <Text style={st.del}>{kind === 'event' ? '이 일정 삭제' : '이 기한 삭제'}</Text>
+          <Text style={st.del}>이 일정 삭제</Text>
         </Pressable>
       ) : null}
     </View>
@@ -130,5 +128,7 @@ const st = StyleSheet.create({
   glabel: { flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 4, marginBottom: 8 },
   glabelTx: { fontSize: 13, color: C.sub, fontWeight: '700' },
   note: { minHeight: 80, padding: 14, fontSize: 15, color: C.ink },
+  addEnd: { fontSize: 15, fontWeight: '700' },
+  clear: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#e6e6ea', alignItems: 'center', justifyContent: 'center' },
   del: { color: C.sun, fontSize: 15, fontWeight: '700', textAlign: 'center' },
 });

@@ -133,7 +133,7 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
             const left = `${(it.sc / 7) * 100}%`;
             const width = `${(it.len / 7) * 100}%`;
             const top = LANE_TOP + it.lane * LANE_H;
-            const due = it.e.kind === 'due';
+            const due = it.e.kind === 'due' && !it.multi;
             return (
               <View key={it.e.id + '-' + wi} pointerEvents="none" style={[st.barWrap, { left, width, top }]}>
                 <View

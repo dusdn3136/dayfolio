@@ -94,7 +94,7 @@ function EventsTab({ date, onAdd }) {
       {evs.length ? evs.map((e) => <EventRow key={e.id} e={e} />) : <Empty>일정이 없어요</Empty>}
       <Pressable style={st.addRow} onPress={onAdd}>
         <IconPlus size={20} color={theme.a} />
-        <Text style={[st.addTx, { color: theme.a }]}>일정 · 기한 추가</Text>
+        <Text style={[st.addTx, { color: theme.a }]}>일정 추가</Text>
       </Pressable>
     </View>
   );
