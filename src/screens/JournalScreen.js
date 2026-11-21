@@ -4,6 +4,7 @@ import { C, D, MOODS, WD, hasDiary, pad } from '../constants';
 import { catOf, useApp } from '../store';
 import { buildReport } from '../report';
 import { IconInsight } from '../components/Icons';
+import Mochi from '../components/Mochi';
 import { Empty } from '../components/ui';
 
 export default function JournalScreen({ year, month }) {
@@ -67,7 +68,7 @@ export default function JournalScreen({ year, month }) {
           <Pressable key={k} style={st.entry} onPress={() => openSheet('day', { date: k, tab: 'dy' })}>
             <View style={{ flex: 1, minWidth: 0 }}>
               <View style={st.eTop}>
-                <View style={[st.eMood, { backgroundColor: v.mood != null ? MOODS[v.mood].c : C.line }]} />
+                {v.mood != null ? <Mochi mood={v.mood} size={24} /> : <View style={[st.eMood, { backgroundColor: C.line }]} />}
                 <Text style={st.eDate}>{d.getMonth() + 1}월 {d.getDate()}일 <Text style={st.eWd}>{WD[d.getDay()]}요일</Text></Text>
               </View>
               {v.text ? <Text numberOfLines={2} style={st.eText}>{v.text}</Text> : null}

@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { C, MOODS, dayDiff, range, todayStr, ymd } from '../constants';
 import { catOf, useApp } from '../store';
 import { IconMemoBadge } from './Icons';
+import Mochi from './Mochi';
 
 const LANE_TOP = 31;
 const LANE_H = 17;
@@ -80,13 +81,13 @@ export default function MonthGrid({ year, month, onPressDay }) {
                   <View style={[st.num, isToday && { backgroundColor: theme.a }]}>
                     <Text style={[st.numTx, d.getDay() === 0 && { color: C.sun }, isToday && { color: '#fff', fontWeight: '800' }]}>{d.getDate()}</Text>
                   </View>
-                  {photo ? <Image source={{ uri: photo }} style={st.photo} /> : null}
+                  {dy && dy.mood != null ? <View style={st.mochi}><Mochi mood={dy.mood} size={19} /></View> : null}
                   {memos.length ? (
-                    <View style={[st.memoMark, { right: photo ? 26 : 5 }]}>
+                    <View style={[st.memoMark, { right: dy && dy.mood != null ? 23 : 5 }]}>
                       <IconMemoBadge color={memoLeft ? theme.a : C.faint} done={memoItems.length > 0 && !memoLeft} />
                     </View>
                   ) : null}
-                  {dy && dy.mood != null ? <View style={[st.moodBar, { backgroundColor: MOODS[dy.mood].c }]} /> : null}
+                  {photo ? <Image source={{ uri: photo }} style={st.photo} /> : null}
                   {wk.hidden[i] ? <Text style={st.more}>+{wk.hidden[i]}</Text> : null}
                 </Pressable>
               );
@@ -136,7 +137,8 @@ const st = StyleSheet.create({
   cell: { flex: 1 },
   num: { position: 'absolute', top: 5, left: 4, minWidth: 22, height: 22, paddingHorizontal: 3, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   numTx: { fontSize: 13, fontWeight: '600', color: C.ink2 },
-  photo: { position: 'absolute', top: 6, right: 4, width: 18, height: 18, borderRadius: 6 },
+  photo: { position: 'absolute', bottom: 5, right: 4, width: 16, height: 16, borderRadius: 5 },
+  mochi: { position: 'absolute', top: 3, right: 2 },
   memoMark: { position: 'absolute', top: 8 },
   moodBar: { position: 'absolute', left: 5, right: 5, bottom: 4, height: 3, borderRadius: 3 },
   more: { position: 'absolute', bottom: 9, left: 7, fontSize: 10, color: C.sub, fontWeight: '700' },

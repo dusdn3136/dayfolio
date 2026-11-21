@@ -4,6 +4,7 @@ import { C, MOODS, dLabel, dayDiff, hasDiary, md, todayStr } from '../constants'
 import { useApp } from '../store';
 import MonthGrid from '../components/MonthGrid';
 import { IconPen } from '../components/Icons';
+import Mochi from '../components/Mochi';
 
 export default function CalendarScreen({ year, month }) {
   const { data, theme, openSheet } = useApp();
@@ -18,7 +19,7 @@ export default function CalendarScreen({ year, month }) {
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
       <Pressable style={[st.todayCard, { backgroundColor: theme.s }]} onPress={() => openSheet('day', { date: today, tab: 'dy' })}>
-        <View style={[st.todayIc, m && { backgroundColor: m.c }]}>{!m ? <IconPen color={theme.a} /> : null}</View>
+        <View style={st.todayIc}>{m ? <Mochi mood={v.mood} size={32} /> : <IconPen color={theme.a} />}</View>
         <View style={{ flex: 1 }}>
           <Text style={[st.todayL, { color: theme.a }]}>오늘의 기록{m ? ` · ${m.n}` : ''}</Text>
           <Text numberOfLines={1} style={st.todayS}>

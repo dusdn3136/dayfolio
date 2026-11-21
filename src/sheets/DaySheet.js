@@ -5,6 +5,7 @@ import { File, Directory, Paths } from 'expo-file-system';
 import { C, MOODS, WD, D, dayDiff, hasDiary, onDay, todayStr, uid } from '../constants';
 import { useApp } from '../store';
 import EventRow from '../components/EventRow';
+import Mochi from '../components/Mochi';
 import { CheckBox, Empty } from '../components/ui';
 import { IconChecklist, IconChevron, IconLines, IconPen, IconPhoto, IconPlus, IconX } from '../components/Icons';
 
@@ -230,7 +231,7 @@ function DiaryTab({ date }) {
       <View>
         <View style={st.dvTop}>
           {m ? (
-            <View style={st.moodPill}><View style={[st.moodSq, { backgroundColor: m.c }]} /><Text style={st.moodPillTx}>{m.n}</Text></View>
+            <View style={st.moodPill}><Mochi mood={v.mood} size={26} /><Text style={st.moodPillTx}>{m.n}</Text></View>
           ) : <View />}
           <Pressable style={st.editBtn} onPress={startEdit} hitSlop={8}><IconPen color={C.sub} /><Text style={st.editTx}>수정</Text></Pressable>
         </View>
@@ -260,7 +261,7 @@ function DiaryTab({ date }) {
           const on = draft.mood === i;
           return (
             <Pressable key={i} style={st.moodBtn} onPress={() => setDraft((s) => ({ ...s, mood: s.mood === i ? null : i }))}>
-              <View style={[st.moodBig, { backgroundColor: m.c, opacity: on ? 1 : 0.35 }, on && { transform: [{ scale: 1.08 }] }]} />
+              <View style={on && { transform: [{ scale: 1.1 }] }}><Mochi mood={i} size={50} full dim={!on} /></View>
               <Text style={[st.moodLb, on && { color: C.ink }]}>{m.n}</Text>
             </Pressable>
           );
@@ -338,7 +339,7 @@ const st = StyleSheet.create({
   dvText: { fontSize: 16, lineHeight: 29, color: C.ink2 },
   viewer: { flex: 1, backgroundColor: 'rgba(0,0,0,.92)', alignItems: 'center', justifyContent: 'center' },
   moods: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 14, marginBottom: 16 },
-  moodBtn: { alignItems: 'center', gap: 6, width: 58 },
+  moodBtn: { alignItems: 'center', gap: 6, width: 62, paddingTop: 6 },
   moodBig: { width: 38, height: 38, borderRadius: 14 },
   moodLb: { fontSize: 12, color: C.sub, fontWeight: '600' },
   ph: { width: 80, height: 80 },
