@@ -60,6 +60,23 @@ export default function CalendarScreen({ year, month, onMove }) {
         </View>
       </Pressable>
 
+      {dues.length || todos.length ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: -10, marginBottom: 14 }} contentContainerStyle={st.chipsRow}>
+          {dues.map((e) => (
+            <Pressable key={e.id} style={st.chip} onPress={() => openSheet('event', { id: e.id })}>
+              <Text style={[st.chipD, { color: dayDiff(e.date, today) > 7 ? C.sub : theme.a }]}>{dLabel(e.date)}</Text>
+              <Text numberOfLines={1} style={st.chipTx}>{e.title}</Text>
+            </Pressable>
+          ))}
+          {todos.map((x) => (
+            <Pressable key={x.id} style={st.chip} onPress={() => openSheet('day', { date: x.date, tab: 'mm' })}>
+              <Text style={[st.chipD, { color: theme.a }]}>{x.items.filter((i) => !i.ok).length}개</Text>
+              <Text numberOfLines={1} style={st.chipTx}>{x.title || '챙길 것'}</Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+      ) : null}
+
       <View style={st.dow}>
         {'일월화수목금토'.split('').map((w, i) => (
           <Text key={w} style={[st.dowTx, i === 0 && { color: C.sun }]}>{w}</Text>
@@ -70,34 +87,6 @@ export default function CalendarScreen({ year, month, onMove }) {
         <MonthGrid year={year} month={month} height={gridH} onPressDay={(s) => openSheet('day', { date: s, tab: 'ev' })} />
       </Animated.View>
 
-      {dues.length ? (
-        <>
-          <Text style={st.secT}>다가오는 기한</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.chipsRow}>
-            {dues.map((e) => (
-              <Pressable key={e.id} style={st.chip} onPress={() => openSheet('event', { id: e.id })}>
-                <Text style={[st.chipBig, { color: dayDiff(e.date, today) > 7 ? C.ink : theme.a }]}>{dLabel(e.date)}</Text>
-                <Text numberOfLines={1} style={st.chipTx}>{e.title}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        </>
-      ) : null}
-
-      {todos.length ? (
-        <>
-          <Text style={st.secT}>챙길 것</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={st.chipsRow}>
-            {todos.map((x) => (
-              <Pressable key={x.id} style={st.chip} onPress={() => openSheet('day', { date: x.date, tab: 'mm' })}>
-                <Text style={[st.chipBig, { fontSize: 15 }]}>{x.date === today ? '오늘' : md(x.date).replace(/ \(.\)/, '')}</Text>
-                <Text numberOfLines={1} style={st.chipTx}>{x.title || '체크리스트'}</Text>
-                <Text style={{ fontSize: 12, fontWeight: '700', color: theme.a, marginTop: 4 }}>{x.items.filter((i) => !i.ok).length}개 남음</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-        </>
-      ) : null}
     </ScrollView>
   );
 }
@@ -109,9 +98,8 @@ const st = StyleSheet.create({
   todayS: { fontSize: 14.5, fontWeight: '500', marginTop: 2, color: C.ink2 },
   dow: { flexDirection: 'row', paddingHorizontal: 8, paddingBottom: 8 },
   dowTx: { flex: 1, fontSize: 11, color: C.sub, fontWeight: '600', paddingLeft: 6 },
-  secT: { fontSize: 15, fontWeight: '800', marginTop: 24, marginHorizontal: 18, marginBottom: 10, color: C.ink },
-  chipsRow: { gap: 8, paddingHorizontal: 18 },
-  chip: { borderWidth: 1, borderColor: C.line, borderRadius: 16, paddingVertical: 12, paddingHorizontal: 14, minWidth: 128, maxWidth: 180 },
-  chipBig: { fontSize: 17, fontWeight: '800', color: C.ink },
-  chipTx: { fontSize: 13, marginTop: 2, color: C.ink2 },
+  chipsRow: { gap: 6, paddingHorizontal: 14 },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: C.line, borderRadius: 999, paddingVertical: 7, paddingHorizontal: 12, maxWidth: 200 },
+  chipD: { fontSize: 12.5, fontWeight: '800' },
+  chipTx: { fontSize: 12.5, fontWeight: '700', color: C.ink2, flexShrink: 1 },
 });
