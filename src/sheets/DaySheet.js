@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View, Modal } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { Alert, Image, Modal, PanResponder, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { File, Directory, Paths } from 'expo-file-system';
 import { C, MOODS, WD, D, dayDiff, hasDiary, onDay, todayStr, uid } from '../constants';
@@ -21,9 +21,25 @@ function keepPhoto(uri) {
   }
 }
 
+const TAB_ORDER = ['ev', 'mm', 'dy'];
+
 export default function DaySheet({ date, tab = 'ev' }) {
   const { setSheetProps, openSheet } = useApp();
   const n = dayDiff(date, todayStr());
+  // 좌우로 밀어서 일정 · 메모 · 일기 전환
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+  const pan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dx) > 24 && Math.abs(g.dx) > Math.abs(g.dy) * 2,
+      onPanResponderRelease: (_, g) => {
+        if (Math.abs(g.dx) < 60) return;
+        const i = TAB_ORDER.indexOf(tabRef.current);
+        const next = g.dx < 0 ? Math.min(i + 1, TAB_ORDER.length - 1) : Math.max(i - 1, 0);
+        if (next !== i) setSheetProps({ tab: TAB_ORDER[next] });
+      },
+    })
+  ).current;
   const d = D(date);
   return (
     <View>
@@ -32,9 +48,11 @@ export default function DaySheet({ date, tab = 'ev' }) {
         <Text style={st.sub}>{n === 0 ? '오늘' : n > 0 ? `${n}일 후` : `${-n}일 전`}</Text>
       </View>
       <Tabs tab={tab} date={date} onChange={(t) => setSheetProps({ tab: t })} />
-      {tab === 'ev' ? <EventsTab date={date} onAdd={() => openSheet('event', { date })} /> : null}
-      {tab === 'mm' ? <MemosTab date={date} /> : null}
-      {tab === 'dy' ? <DiaryTab date={date} /> : null}
+      <View {...pan.panHandlers} style={{ minHeight: 360 }}>
+        {tab === 'ev' ? <EventsTab date={date} onAdd={() => openSheet('event', { date })} /> : null}
+        {tab === 'mm' ? <MemosTab date={date} /> : null}
+        {tab === 'dy' ? <DiaryTab date={date} /> : null}
+      </View>
     </View>
   );
 }
