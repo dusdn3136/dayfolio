@@ -64,11 +64,19 @@ function Main() {
         {tab === 'set' ? <SettingsScreen /> : null}
       </View>
 
-      <TabBar tab={tab} setTab={setTab} onPlus={() => {
-        const isThisMonth = ym.y === now.getFullYear() && ym.m === now.getMonth();
-        const date = isThisMonth ? todayStr() : `${ym.y}-${String(ym.m + 1).padStart(2, '0')}-01`;
-        openSheet('event', { date });
-      }} accent={theme.a} />
+      {tab !== 'set' ? (
+        <Fab
+          accent={theme.a}
+          label={tab === 'jr' ? '오늘 일기 쓰기' : '일정 추가'}
+          onPress={() => {
+            if (tab === 'jr') return openSheet('day', { date: todayStr(), tab: 'dy' });
+            const isThisMonth = ym.y === now.getFullYear() && ym.m === now.getMonth();
+            const date = isThisMonth ? todayStr() : `${ym.y}-${String(ym.m + 1).padStart(2, '0')}-01`;
+            openSheet('event', { date });
+          }}
+        />
+      ) : null}
+      <TabBar tab={tab} setTab={setTab} />
 
       <SheetHost />
       {toastMsg ? (
@@ -80,7 +88,21 @@ function Main() {
   );
 }
 
-function TabBar({ tab, setTab, onPlus, accent }) {
+// 오른쪽 아래 떠 있는 + 버튼
+function Fab({ accent, onPress, label }) {
+  const insets = useSafeAreaInsets();
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityLabel={label}
+      style={[st.fab, { backgroundColor: accent, shadowColor: accent, bottom: 64 + Math.max(insets.bottom, 10) + 16 }]}
+    >
+      <IconPlus color="#fff" />
+    </Pressable>
+  );
+}
+
+function TabBar({ tab, setTab }) {
   const insets = useSafeAreaInsets();
   const item = (k, label, Icon) => {
     const on = tab === k;
@@ -95,9 +117,6 @@ function TabBar({ tab, setTab, onPlus, accent }) {
     <View style={[st.tabbar, { paddingBottom: Math.max(insets.bottom, 10) }]}>
       {item('cal', '캘린더', IconCalendar)}
       {item('jr', '일기장', IconBook)}
-      <Pressable style={st.plusWrap} onPress={onPlus} accessibilityLabel="일정 추가">
-        <View style={[st.plus, { backgroundColor: accent, shadowColor: accent }]}><IconPlus color="#fff" /></View>
-      </Pressable>
       {item('set', '설정', IconGear)}
     </View>
   );
@@ -147,11 +166,10 @@ const st = StyleSheet.create({
   tbtn: { borderWidth: 1, borderColor: C.line, borderRadius: 10, paddingVertical: 6, paddingHorizontal: 11, marginRight: 6 },
   tbtnTx: { fontSize: 13, fontWeight: '600', color: C.ink },
   arw: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
-  tabbar: { flexDirection: 'row', alignItems: 'flex-start', paddingTop: 8, borderTopWidth: 1, borderTopColor: C.line, backgroundColor: '#fff' },
+  tabbar: { flexDirection: 'row', alignItems: 'flex-start', paddingTop: 10, borderTopWidth: 1, borderTopColor: C.line, backgroundColor: '#fff' },
   tabItem: { flex: 1, alignItems: 'center', gap: 3 },
   tabTx: { fontSize: 10.5, fontWeight: '600', color: '#b0b0b5' },
-  plusWrap: { width: 76, alignItems: 'center' },
-  plus: { width: 50, height: 50, borderRadius: 17, alignItems: 'center', justifyContent: 'center', marginTop: -2, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
+  fab: { position: 'absolute', right: 20, width: 56, height: 56, borderRadius: 20, alignItems: 'center', justifyContent: 'center', shadowOpacity: 0.35, shadowRadius: 10, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
   dim: { flex: 1, backgroundColor: 'rgba(0,0,0,.3)' },
   sheet: { backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, maxHeight: '92%', paddingTop: 10 },
   grab: { width: 38, height: 5, borderRadius: 5, backgroundColor: '#e2e2e6', alignSelf: 'center', marginBottom: 14 },

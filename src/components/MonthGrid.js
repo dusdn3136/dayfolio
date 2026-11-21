@@ -110,7 +110,7 @@ export default function MonthGrid({ year, month, onPressDay }) {
                       it.e.done && { opacity: 0.45 },
                     ]}
                   >
-                    <Text numberOfLines={1} style={st.multiTx}>{it.e.title}</Text>
+                    <Text numberOfLines={1} ellipsizeMode="clip" style={st.multiTx}>{it.e.title}</Text>
                   </View>
                 </View>
               );
@@ -118,7 +118,7 @@ export default function MonthGrid({ year, month, onPressDay }) {
             return (
               <View key={it.e.id + '-' + wi} pointerEvents="none" style={[st.barWrap, st.single, { left, width, top }]}>
                 <View style={[st.dot, { backgroundColor: col }, it.e.kind === 'due' && { borderRadius: 1.5, width: 6, height: 6 }]} />
-                <Text numberOfLines={1} style={[st.singleTx, it.e.kind === 'due' && { fontWeight: '700' }, it.e.done && { color: C.faint, textDecorationLine: 'line-through' }]}>
+                <Text numberOfLines={1} ellipsizeMode="clip" style={[st.singleTx, it.e.kind === 'due' && { fontWeight: '700' }, it.e.done && { color: C.faint, textDecorationLine: 'line-through' }]}>
                   {it.e.title}
                 </Text>
               </View>
