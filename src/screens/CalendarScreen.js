@@ -43,9 +43,6 @@ export default function CalendarScreen({ year, month, onMove }) {
   const v = data.diary[today];
   const m = v && v.mood != null ? MOODS[v.mood] : null;
   const dues = data.events.filter((e) => e.kind === 'due' && !e.done && e.date >= today).sort((a, b) => a.date.localeCompare(b.date));
-  const todos = data.memos
-    .filter((x) => x.type === 'check' && x.date >= today && x.items.some((i) => !i.ok))
-    .sort((a, b) => a.date.localeCompare(b.date));
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 120 }} onLayout={(e) => setViewH(e.nativeEvent.layout.height)}>
@@ -60,18 +57,12 @@ export default function CalendarScreen({ year, month, onMove }) {
         </View>
       </Pressable>
 
-      {dues.length || todos.length ? (
+      {dues.length ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: -10, marginBottom: 14 }} contentContainerStyle={st.chipsRow}>
           {dues.map((e) => (
             <Pressable key={e.id} style={st.chip} onPress={() => openSheet('event', { id: e.id })}>
               <Text style={[st.chipD, { color: dayDiff(e.date, today) > 7 ? C.sub : theme.a }]}>{dLabel(e.date)}</Text>
               <Text numberOfLines={1} style={st.chipTx}>{e.title}</Text>
-            </Pressable>
-          ))}
-          {todos.map((x) => (
-            <Pressable key={x.id} style={st.chip} onPress={() => openSheet('day', { date: x.date, tab: 'mm' })}>
-              <Text style={[st.chipD, { color: theme.a }]}>{x.items.filter((i) => !i.ok).length}개</Text>
-              <Text numberOfLines={1} style={st.chipTx}>{x.title || '챙길 것'}</Text>
             </Pressable>
           ))}
         </ScrollView>
