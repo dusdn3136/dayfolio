@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DEFAULT_CATS, THEMES } from './constants';
-import { syncReminders } from './notify';
+import { DEFAULT_NOTIFY, syncReminders } from './notify';
 
 const KEY = 'dayfolio-data-v1';
 
@@ -11,6 +11,7 @@ export const emptyData = (theme = 'sky') => ({
   memos: [],
   cats: DEFAULT_CATS.map((c) => ({ ...c })),
   theme,
+  notify: { ...DEFAULT_NOTIFY },
 });
 
 const AppCtx = createContext(null);
@@ -36,11 +37,11 @@ export function AppProvider({ children }) {
 
   // 일정이 바뀌면 알림 예약도 다시 맞춤 (잠깐 기다렸다가 한 번에)
   const remindTimer = useRef(null);
-  const eventsKey = data ? JSON.stringify(data.events) : '';
+  const eventsKey = data ? JSON.stringify([data.events, data.notify]) : '';
   useEffect(() => {
     if (!data) return;
     clearTimeout(remindTimer.current);
-    remindTimer.current = setTimeout(() => syncReminders(data.events), 800);
+    remindTimer.current = setTimeout(() => syncReminders(data), 800);
   }, [eventsKey]);
 
   // fn(draft) 안에서 draft를 직접 고치면 됨

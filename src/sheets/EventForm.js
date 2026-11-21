@@ -5,7 +5,7 @@ import { C, dLabel, md, todayStr, uid } from '../constants';
 import { useApp } from '../store';
 import { Chips, DateField, SheetTop } from '../components/ui';
 import RangeCalendar from '../components/RangeCalendar';
-import { DEFAULT_REMIND, REMIND, ensurePermission } from '../notify';
+import { ensurePermission } from '../notify';
 
 export default function EventForm({ id, date }) {
   const { data, update, closeSheet, openSheet, toast, theme } = useApp();
@@ -21,7 +21,6 @@ export default function EventForm({ id, date }) {
   const [time, setTime] = useState((orig && orig.time) || '09:00');
   const [cat, setCat] = useState(orig ? orig.cat : data.cats[0] && data.cats[0].k);
   const [note, setNote] = useState((orig && orig.note) || '');
-  const [remind, setRemind] = useState(orig ? orig.remind || 'none' : DEFAULT_REMIND);
 
   if (id && !orig) return null;
   const cats = data.cats;
@@ -37,8 +36,8 @@ export default function EventForm({ id, date }) {
     } else {
       patch = { kind: 'event', date: startDate, start: '', time: allDay ? '' : time };
     }
-    Object.assign(patch, { title: t, cat: catValue, note: note.trim(), remind });
-    if (remind !== 'none') ensurePermission();
+    Object.assign(patch, { title: t, cat: catValue, note: note.trim() });
+    if (!data.notify || data.notify.on) ensurePermission();
     update((dr) => {
       if (id) Object.assign(dr.events.find((e) => e.id === id), patch);
       else dr.events.push({ id: uid(), done: false, ...patch });
@@ -91,18 +90,6 @@ export default function EventForm({ id, date }) {
       </View>
       {hint ? <Text style={st.hint}>{hint}</Text> : null}
 
-      <View style={st.glabel}><Text style={st.glabelTx}>알림</Text></View>
-      <View style={[st.group, st.remindRow]}>
-        {REMIND.map((r) => {
-          const on = remind === r.k;
-          return (
-            <Pressable key={r.k} onPress={() => setRemind(r.k)} style={[st.remind, on && { backgroundColor: theme.a }]}>
-              <Text style={[st.remindTx, on && { color: '#fff' }]}>{ranged && r.k !== 'none' ? r.n.replace('당일', '마감일').replace('하루 전', '마감 하루 전') : r.n}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
-
       <View style={st.glabel}>
         <Text style={st.glabelTx}>분류</Text>
         <Pressable onPress={() => openSheet('cats')} hitSlop={8}><Text style={[st.glabelTx, { color: theme.a }]}>분류 편집</Text></Pressable>
@@ -143,9 +130,6 @@ const st = StyleSheet.create({
   hint: { fontSize: 12.5, color: C.sub, marginTop: -12, marginBottom: 20, marginHorizontal: 6, lineHeight: 19 },
   glabel: { flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 4, marginBottom: 8 },
   glabelTx: { fontSize: 13, color: C.sub, fontWeight: '700' },
-  remindRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 7, padding: 12 },
-  remind: { backgroundColor: '#fff', paddingVertical: 9, paddingHorizontal: 12, borderRadius: 12 },
-  remindTx: { fontSize: 13.5, fontWeight: '700', color: C.ink2 },
   note: { minHeight: 80, padding: 14, fontSize: 15, color: C.ink },
   datePill: { backgroundColor: '#fff', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, flexShrink: 1 },
   dateTx: { fontSize: 15, fontWeight: '600', textAlign: 'right' },
