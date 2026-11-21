@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, View } from 'react-native';
 import { Text } from '../components/T';
 import { C, D, MOODS, WD, hasDiary, pad } from '../constants';
 import { catOf, useApp } from '../store';
@@ -7,9 +7,15 @@ import { buildReport } from '../report';
 import { IconInsight } from '../components/Icons';
 import Mochi from '../components/Mochi';
 import { Empty } from '../components/ui';
+import SwipeRow from '../components/SwipeRow';
 
 export default function JournalScreen({ year, month }) {
-  const { data, theme, openSheet } = useApp();
+  const { data, update, toast, theme, openSheet } = useApp();
+  const removeDiary = (k) =>
+    Alert.alert('일기를 삭제할까요?', '사진과 글이 함께 지워져요.', [
+      { text: '취소', style: 'cancel' },
+      { text: '삭제', style: 'destructive', onPress: () => { update((dr) => { delete dr.diary[k]; }); toast('일기를 삭제했어요'); } },
+    ]);
   const pre = `${year}-${pad(month + 1)}`;
   const r = buildReport(data, year, month);
   const first = new Date(year, month, 1).getDay();
@@ -66,7 +72,15 @@ export default function JournalScreen({ year, month }) {
         const v = data.diary[k];
         const d = D(k);
         return (
-          <Pressable key={k} style={st.entry} onPress={() => openSheet('day', { date: k, tab: 'dy' })}>
+          <SwipeRow
+            key={k}
+            onPress={() => openSheet('day', { date: k, tab: 'dy' })}
+            actions={[
+              { label: '수정', color: theme.a, onPress: () => openSheet('day', { date: k, tab: 'dy', edit: true }) },
+              { label: '삭제', color: '#ff6b6b', onPress: () => removeDiary(k) },
+            ]}
+          >
+          <View style={st.entry}>
             <View style={{ flex: 1, minWidth: 0 }}>
               <View style={st.eTop}>
                 {v.mood != null ? <Mochi mood={v.mood} size={24} /> : <View style={[st.eMood, { backgroundColor: C.line }]} />}
@@ -75,7 +89,8 @@ export default function JournalScreen({ year, month }) {
               {v.text ? <Text numberOfLines={2} style={st.eText}>{v.text}</Text> : null}
             </View>
             {v.photos && v.photos.length ? <Image source={{ uri: v.photos[0] }} style={st.eThumb} /> : null}
-          </Pressable>
+          </View>
+          </SwipeRow>
         );
       })}
     </ScrollView>

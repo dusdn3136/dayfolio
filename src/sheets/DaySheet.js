@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Image, Modal, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from '../components/T';
 import * as ImagePicker from 'expo-image-picker';
@@ -26,7 +26,7 @@ function keepPhoto(uri) {
 
 const TAB_ORDER = ['ev', 'mm', 'dy'];
 
-export default function DaySheet({ date, tab = 'ev' }) {
+export default function DaySheet({ date, tab = 'ev', edit = false }) {
   const { setSheetProps, openSheet, closeSheet } = useApp();
   const n = dayDiff(date, todayStr());
   // 좌우로 밀어서 일정 · 메모 · 일기 전환
@@ -63,7 +63,7 @@ export default function DaySheet({ date, tab = 'ev' }) {
       <View {...pan.panHandlers} style={{ minHeight: 360 }}>
         {tab === 'ev' ? <EventsTab date={date} onAdd={() => openSheet('event', { date })} /> : null}
         {tab === 'mm' ? <MemosTab date={date} /> : null}
-        {tab === 'dy' ? <DiaryTab date={date} /> : null}
+        {tab === 'dy' ? <DiaryTab date={date} startInEdit={edit} /> : null}
       </View>
     </View>
   );
@@ -212,12 +212,14 @@ function MemosTab({ date }) {
   );
 }
 
-function DiaryTab({ date }) {
+function DiaryTab({ date, startInEdit }) {
   const { data, update, toast, theme } = useApp();
   const v = data.diary[date];
   const [edit, setEdit] = useState(false);
   const [draft, setDraft] = useState(null);
   const [viewer, setViewer] = useState(null);
+  // 일기장 목록에서 '수정'으로 들어오면 바로 수정 화면
+  useEffect(() => { if (startInEdit && hasDiary(v)) startEdit(); }, []);
 
   const startEdit = () => {
     setDraft({ mood: v && v.mood != null ? v.mood : null, text: (v && v.text) || '', photos: [...((v && v.photos) || [])] });
