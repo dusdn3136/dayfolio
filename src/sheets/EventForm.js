@@ -15,7 +15,7 @@ export default function EventForm({ id, date }) {
   const isRange = orig && orig.kind === 'due' && orig.start && orig.start < orig.date;
   const [startDate, setStartDate] = useState(orig ? (isRange ? orig.start : orig.date) : base);
   const [endDate, setEndDate] = useState(isRange ? orig.date : '');
-  const [showCal, setShowCal] = useState(!id);
+  const [showCal, setShowCal] = useState(false);
   const [allDay, setAllDay] = useState(!(orig && orig.time));
   const [time, setTime] = useState((orig && orig.time) || '09:00');
   const [cat, setCat] = useState(orig ? orig.cat : data.cats[0] && data.cats[0].k);
@@ -69,7 +69,9 @@ export default function EventForm({ id, date }) {
       <View style={st.group}>
         <Pressable onPress={() => setShowCal(!showCal)}>
           <Row label={ranged ? '기간' : '날짜'}>
-            <Text style={[st.dateTx, { color: theme.a }]}>{ranged ? `${md(startDate)} ~ ${md(endDate)}` : md(startDate)}</Text>
+            <View style={[st.datePill, showCal && { backgroundColor: theme.s }]}>
+              <Text style={[st.dateTx, { color: showCal ? theme.a : C.ink }]}>{ranged ? `${md(startDate)} ~ ${md(endDate)}` : md(startDate)}</Text>
+            </View>
           </Row>
         </Pressable>
         {showCal ? (
@@ -127,6 +129,7 @@ const st = StyleSheet.create({
   glabel: { flexDirection: 'row', justifyContent: 'space-between', marginHorizontal: 4, marginBottom: 8 },
   glabelTx: { fontSize: 13, color: C.sub, fontWeight: '700' },
   note: { minHeight: 80, padding: 14, fontSize: 15, color: C.ink },
-  dateTx: { fontSize: 15, fontWeight: '700', flexShrink: 1, textAlign: 'right' },
+  datePill: { backgroundColor: '#fff', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, flexShrink: 1 },
+  dateTx: { fontSize: 15, fontWeight: '600', textAlign: 'right' },
   del: { color: C.sun, fontSize: 15, fontWeight: '700', textAlign: 'center' },
 });

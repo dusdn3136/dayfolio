@@ -12,7 +12,7 @@ export default function EventRow({ e, withDate }) {
   const d = D(e.date);
 
   // 왼쪽으로 밀면 삭제 버튼, 끝까지 밀면 바로 삭제
-  const OPEN = -84;
+  const OPEN = -76;
   const x = useRef(new Animated.Value(0)).current;
   const opened = useRef(false);
   const removeRef = useRef(null);
@@ -46,9 +46,11 @@ export default function EventRow({ e, withDate }) {
 
   return (
     <View style={st.wrap}>
-      <Pressable style={st.delBg} onPress={() => removeRef.current()} accessibilityLabel="일정 삭제">
-        <Text style={st.delTx}>삭제</Text>
-      </Pressable>
+      <View style={st.delWrap}>
+        <Pressable style={st.delBtn} onPress={() => removeRef.current()} accessibilityLabel="일정 삭제">
+          <Text style={st.delTx}>삭제</Text>
+        </Pressable>
+      </View>
       <Animated.View {...pan.panHandlers} style={{ transform: [{ translateX: x }], backgroundColor: '#fff' }}>
     <Pressable style={st.row} onPress={() => (opened.current ? snap(0) : openSheet('event', { id: e.id }))}>
       <View style={[st.dot, { backgroundColor: cat.c }, e.kind === 'due' && { borderRadius: 3 }]} />
@@ -88,8 +90,9 @@ export default function EventRow({ e, withDate }) {
 
 const st = StyleSheet.create({
   wrap: { overflow: 'hidden' },
-  delBg: { position: 'absolute', right: 0, top: 0, bottom: 1, width: 84, backgroundColor: C.sun, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
-  delTx: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  delWrap: { position: 'absolute', right: 0, top: 0, bottom: 0, width: 60, alignItems: 'flex-end', justifyContent: 'center' },
+  delBtn: { width: 56, height: 34, borderRadius: 10, backgroundColor: '#ff6b6b', alignItems: 'center', justifyContent: 'center' },
+  delTx: { color: '#fff', fontSize: 13.5, fontWeight: '700' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, borderBottomWidth: 1, borderBottomColor: C.line },
   dot: { width: 10, height: 10, borderRadius: 5 },
   title: { fontSize: 16, fontWeight: '600', color: C.ink },
