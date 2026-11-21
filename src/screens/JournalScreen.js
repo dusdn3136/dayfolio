@@ -33,7 +33,7 @@ export default function JournalScreen({ year, month }) {
         </View>
         {r.moodDays < 3 ? (
           <View style={st.lock}>
-            <Text style={st.lockTx}>기분을 3일 이상 남기면 이번 달 기분 흐름과 나를 기분 좋게 한 것들을 정리해드려요.</Text>
+            <Text style={st.lockTx}>몽글이로 기분을 3일 이상 남기면 이번 달 기분 흐름과 나를 기분 좋게 한 것들을 정리해드려요.</Text>
             <View style={st.lockBar}><View style={{ width: `${(r.moodDays / 3) * 100}%`, height: '100%', backgroundColor: theme.a }} /></View>
           </View>
         ) : null}

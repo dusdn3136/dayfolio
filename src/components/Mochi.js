@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { Circle, Ellipse, G, Path } from 'react-native-svg';
 
-// 업그레이드된 기분 모찌 캐릭터 (0 최고 · 1 좋음 · 2 보통 · 3 우울 · 4 화남)
+// 기분 캐릭터 '몽글이' (0 최고 · 1 좋음 · 2 보통 · 3 우울 · 4 화남)
 // 기존 props(mood, size, full, dim)와 MOCHI export를 그대로 유지해서 바로 교체 가능합니다.
 
 const K = '#3d3330';

@@ -271,7 +271,7 @@ function DiaryTab({ date }) {
         <View style={st.evEmpty}>
           <Mochi mood={1} size={64} full />
           <Text style={st.evEmptyT}>{date === todayStr() ? '오늘 하루는 어땠나요?' : '이 날의 기록이 없어요'}</Text>
-          <Text style={st.evEmptyS}>기분 하나만 골라도 기록돼요</Text>
+          <Text style={st.evEmptyS}>오늘의 몽글이 하나만 골라도 기록돼요</Text>
           <Pressable style={[st.evEmptyBtn, { backgroundColor: theme.a }]} onPress={startEdit}>
             <IconPen size={15} color="#fff" />
             <Text style={st.evEmptyBtnTx}>일기 쓰기</Text>
@@ -310,6 +310,7 @@ function DiaryTab({ date }) {
 
   return (
     <View>
+      <Text style={st.moodQ}>오늘 몽글이는 어떤 기분이에요?</Text>
       <View style={st.moods}>
         {MOODS.map((m, i) => {
           const on = draft.mood === i;
@@ -381,6 +382,7 @@ const st = StyleSheet.create({
   done: { color: C.faint, textDecorationLine: 'line-through' },
   addBox: { width: 24, height: 24, borderRadius: 8, borderWidth: 1.8, borderStyle: 'dashed', borderColor: C.faint, alignItems: 'center', justifyContent: 'center' },
   addInput: { flex: 1, fontSize: 15, color: C.ink, paddingVertical: 4 },
+  moodQ: { fontSize: 14, fontWeight: '700', color: C.sub, textAlign: 'center', marginTop: 14 },
   memoDel: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', marginLeft: 6 },
   memoAdds: { flexDirection: 'row', gap: 8, marginTop: 14 },
   memoAdd: { flex: 1, flexDirection: 'row', gap: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: C.soft, borderRadius: 14, paddingVertical: 14 },
