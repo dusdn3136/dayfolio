@@ -228,8 +228,7 @@ function DiaryTab({ date, startInEdit }) {
   const addPhotos = async () => {
     const left = 4 - draft.photos.length;
     if (left <= 0) return toast('사진은 하루 4장까지예요');
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return toast('사진 접근을 허용해주세요');
+    // 사진 선택기는 고른 사진만 넘겨줘서 별도 권한 요청이 필요 없음 (안드로이드는 사진 권한을 막아둠)
     const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsMultipleSelection: true, selectionLimit: left, quality: 0.7 });
     if (res.canceled) return;
     const uris = res.assets.slice(0, left).map((a) => keepPhoto(a.uri));
