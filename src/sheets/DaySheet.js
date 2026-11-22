@@ -335,6 +335,7 @@ function DiaryTab({ date, startInEdit }) {
         value={draft.text}
         onChangeText={(t) => setDraft((s) => ({ ...s, text: t }))}
         textAlignVertical="top"
+        scrollEnabled
       />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: 12 }}>
         {draft.photos.map((p, i) => (
@@ -413,7 +414,7 @@ const st = StyleSheet.create({
   ph: { width: 80, height: 80 },
   phRm: { position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(0,0,0,.55)', alignItems: 'center', justifyContent: 'center' },
   phAdd: { width: 80, height: 80, borderRadius: 14, borderWidth: 1.5, borderStyle: 'dashed', borderColor: C.faint, alignItems: 'center', justifyContent: 'center', gap: 4 },
-  textarea: { minHeight: 120, backgroundColor: C.soft, borderRadius: 14, padding: 14, fontSize: 15.5, lineHeight: 26, color: C.ink },
+  textarea: { minHeight: 120, maxHeight: 160, backgroundColor: C.soft, borderRadius: 14, padding: 14, fontSize: 15.5, lineHeight: 26, color: C.ink },
   actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
   btn: { paddingVertical: 15, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   btnSec: { backgroundColor: C.soft, width: 96 },
