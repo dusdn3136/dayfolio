@@ -3,38 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dayfolio 베타 테스터 안내</title>
-<meta property="og:title" content="Dayfolio 베타 테스터 안내">
-<meta property="og:description" content="테스트 참여 방법과 안심하고 써도 되는 이유를 정리했어요.">
+<title>Dayfolio 테스트 안내</title>
+<meta property="og:title" content="Dayfolio 테스트 안내">
+<meta property="og:description" content="링크 누르고, 설치하고, 2주만 지우지 말아 주세요.">
 <meta property="og:image" content="https://dusdn3136.github.io/dayfolio/icon.png">
 <style>
 @font-face{font-family:S;src:url(SUITE-Regular.otf);font-weight:400}
 @font-face{font-family:S;src:url(SUITE-Bold.otf);font-weight:700}
 @font-face{font-family:S;src:url(SUITE-ExtraBold.otf);font-weight:800}
 *{box-sizing:border-box}
-body{margin:0;background:#eaf5fd;font-family:S,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#1c1c1e;line-height:1.65;word-break:keep-all}
-.wrap{max-width:560px;margin:0 auto;padding:28px 18px 60px}
-.hero{text-align:center;padding:18px 0 8px}
-.hero img{width:96px;height:96px;border-radius:24px;box-shadow:0 10px 30px rgba(79,168,232,.25)}
-.hero h1{font-size:28px;font-weight:800;margin:16px 0 4px;letter-spacing:-.5px}
-.hero p{margin:0;color:#4fa8e8;font-weight:700}
-.card{background:#fff;border-radius:22px;padding:22px 20px;margin-top:16px}
-h2{font-size:19px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:8px}
-h2 .n{display:inline-flex;width:28px;height:28px;border-radius:9px;background:#4fa8e8;color:#fff;font-size:15px;align-items:center;justify-content:center}
+body{margin:0;background:#eaf5fd;font-family:S,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#1c1c1e;line-height:1.6;word-break:keep-all;font-size:18px}
+.wrap{max-width:520px;margin:0 auto;padding:28px 18px 60px}
+.hero{text-align:center;padding:10px 0 4px}
+.hero img{width:88px;height:88px;border-radius:22px;box-shadow:0 10px 30px rgba(79,168,232,.25)}
+.hero h1{font-size:27px;font-weight:800;margin:14px 0 6px;letter-spacing:-.5px}
+.hero p{margin:0;color:#55595f}
+.card{background:#fff;border-radius:24px;padding:24px 20px;margin-top:16px}
+h2{font-size:22px;font-weight:800;margin:0 0 14px;letter-spacing:-.3px}
+.step{display:flex;gap:14px;align-items:flex-start;padding:16px 0;border-top:1px solid #eef2f6}
+.step:first-of-type{border-top:none;padding-top:0}
+.num{flex:none;width:40px;height:40px;border-radius:13px;background:#4fa8e8;color:#fff;font-weight:800;font-size:21px;display:flex;align-items:center;justify-content:center}
+.step b{font-size:20px}
+.step p{margin:4px 0 0;color:#55595f;font-size:16px}
+.btn{display:inline-block;margin-top:10px;padding:9px 18px;border-radius:999px;background:#1a73e8;color:#fff;font-weight:700;font-size:16px}
+.btn.g{background:#01875f}
+.big{background:#fdeceb;border-radius:18px;padding:18px;text-align:center}
+.big b{display:block;font-size:22px;color:#d64545;margin-bottom:6px}
+.big span{color:#55595f;font-size:16px}
 .safe{display:grid;gap:10px}
-.safe div{background:#f4f9fd;border-radius:14px;padding:12px 14px}
-.safe b{display:block;font-size:15.5px}
-.safe span{font-size:14px;color:#55595f}
-ol{margin:0;padding-left:20px}
-ol li{margin:8px 0}
-.tip{background:#fff7d9;border-radius:14px;padding:12px 14px;font-size:14px;margin-top:12px}
-.warn{background:#fdeceb;border-radius:14px;padding:12px 14px;font-size:14px;margin-top:12px}
-details{border-top:1px solid #eef2f6;padding:12px 0}
-details:first-of-type{border-top:none}
-summary{font-weight:700;cursor:pointer;list-style:none}
-summary::before{content:"Q. ";color:#4fa8e8}
-details p{margin:8px 0 0;color:#55595f;font-size:14.5px}
-.foot{text-align:center;color:#8e8e93;font-size:13px;margin-top:24px}
+.safe div{display:flex;gap:12px;align-items:center;background:#f4f9fd;border-radius:16px;padding:14px}
+.safe i{font-style:normal;font-size:26px;flex:none}
+.safe span{font-size:17px}
+.note{font-size:15px;color:#8e8e93;margin:12px 0 0}
+.q{padding:14px 0;border-top:1px solid #eef2f6}
+.q:first-of-type{border-top:none;padding-top:0}
+.q b{display:block}
+.q span{color:#55595f;font-size:16px}
+.foot{text-align:center;color:#8e8e93;font-size:14px;margin-top:24px}
 a{color:#2f86c6}
 </style>
 </head>
@@ -43,71 +48,80 @@ a{color:#2f86c6}
 
 <div class="hero">
   <img src="icon.png" alt="Dayfolio 앱 아이콘">
-  <h1>Dayfolio 베타 테스터 안내</h1>
-  <p>테스트에 참여해 주셔서 정말 고마워요 💙</p>
+  <h1>Dayfolio 테스트 안내</h1>
+  <p>도와주셔서 고마워요 💙<br>딱 3단계면 끝나요.</p>
 </div>
 
 <div class="card">
-  <h2>🍡 어떤 앱인가요?</h2>
-  <p style="margin:0">일정 · 메모 · 일기를 한 달력에서 관리하고, 그날 기분을 귀여운 캐릭터 <b>몽글이</b>로 기록하는 다이어리 앱이에요. 한 달이 모이면 기분 리포트도 만들어 줘요.</p>
-</div>
+  <h2>📲 이렇게 하면 돼요</h2>
 
-<div class="card">
-  <h2>🔒 안심하고 쓰셔도 돼요</h2>
-  <div class="safe">
-    <div><b>개인정보를 수집하지 않아요</b><span>회원가입, 로그인, 전화번호, 이름 같은 걸 하나도 묻지 않아요.</span></div>
-    <div><b>기록은 내 폰에만 저장돼요</b><span>일정, 일기, 사진은 서버로 보내지 않아요. 개발자도 여러분의 기록을 볼 수 없어요.</span></div>
-    <div><b>권한은 꼭 필요한 것만</b><span>사진은 일기에 넣을 때 내가 고른 사진만, 알림은 일정 알림용으로만 써요. 연락처·위치·마이크는 쓰지 않아요.</span></div>
-    <div><b>구글 플레이 공식 테스트예요</b><span>구글 검토를 거친 앱을 플레이 스토어에서 설치해요. 출처 모를 파일을 받는 게 아니에요.</span></div>
-    <div><b>광고·결제 없어요</b><span>테스트 버전에는 광고도, 결제도 없어요.</span></div>
+  <div class="step">
+    <div class="num">1</div>
+    <div>
+      <b>받은 링크를 눌러요</b>
+      <p>카톡으로 받은 링크를 폰에서 눌러 주세요.</p>
+    </div>
   </div>
-  <p style="font-size:14px;color:#8e8e93;margin:12px 0 0">자세한 내용: <a href="privacy.html">개인정보처리방침</a></p>
+
+  <div class="step">
+    <div class="num">2</div>
+    <div>
+      <b>파란 버튼을 눌러요</b>
+      <p>화면에 이런 버튼이 보여요.</p>
+      <span class="btn">테스터 되기</span>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="num">3</div>
+    <div>
+      <b>초록 버튼으로 설치해요</b>
+      <p>플레이스토어가 열리면 평소처럼 설치하면 끝!</p>
+      <span class="btn g">설치</span>
+    </div>
+  </div>
 </div>
 
 <div class="card">
-  <h2><span class="n">1</span>참여하는 방법</h2>
-  <ol>
-    <li><b>안드로이드 폰</b>(갤럭시 등)이 필요해요. 아이폰은 아직 참여할 수 없어요 🙏</li>
-    <li>플레이 스토어에 로그인된 <b>지메일 주소</b>를 개발자에게 알려주세요.</li>
-    <li>며칠 뒤 받은 <b>참여 링크</b>를 폰에서 열고 <b>"테스터 되기"</b>를 눌러요.</li>
-    <li>화면의 <b>"Google Play에서 다운로드"</b>를 눌러 평소처럼 <b>설치</b>해요.</li>
-  </ol>
-  <div class="tip">💡 링크를 눌렀는데 앱이 안 보이면, 지메일 주소가 플레이 스토어 계정과 같은지 확인해 주세요. 처음엔 앱이 뜨기까지 몇 시간 걸릴 수도 있어요.</div>
+  <div class="big">
+    <b>2주 동안만 지우지 말아 주세요</b>
+    <span>매일 안 써도 괜찮아요.<br>폰에 깔아두기만 하면 돼요.</span>
+  </div>
+  <p class="note" style="text-align:center">구글은 12명이 2주 동안 써봐야<br>새 앱을 출시하게 해줘요.</p>
 </div>
 
 <div class="card">
-  <h2><span class="n">2</span>딱 하나만 부탁드려요</h2>
-  <p style="margin:0">구글 규칙상 테스터 12명 이상이 <b>14일 동안 테스트에 참여</b>해야 정식 출시를 할 수 있어요.</p>
-  <div class="warn">📌 <b>14일 동안은 앱을 지우지 말아 주세요.</b><br>가끔 열어서 일정 하나, 일기 한 줄만 남겨줘도 큰 도움이 돼요!</div>
+  <h2>🔒 안심하세요</h2>
+  <div class="safe">
+    <div><i>📱</i><span>적은 내용은 <b>내 폰에만</b> 저장돼요.<br>인터넷으로 보내지 않아요.</span></div>
+    <div><i>🙈</i><span>만든 사람도 <b>내용을 볼 수 없어요.</b></span></div>
+    <div><i>🚫</i><span>회원가입·로그인·광고·결제 <b>없어요.</b></span></div>
+    <div><i>🖼️</i><span>사진은 <b>내가 고른 것만</b> 들어가요.<br>사진첩 전체를 보지 않아요.</span></div>
+    <div><i>✅</i><span><b>구글 플레이스토어</b>에서 받는 거라<br>일반 앱처럼 안전해요.</span></div>
+  </div>
+  <p class="note">자세한 내용: <a href="privacy.html">개인정보처리방침</a></p>
 </div>
 
 <div class="card">
-  <h2><span class="n">3</span>이렇게 써보세요</h2>
-  <ol>
-    <li>달력에서 날짜를 누르고 <b>일정</b>을 추가해 보세요. 일정 추가 화면의 달력에서 날짜를 두 번 고르면 여행처럼 <b>기간 일정</b>이 돼요.</li>
-    <li>오늘 날짜의 <b>일기</b> 탭에서 몽글이로 기분을 고르고 한 줄 남겨 보세요.</li>
-    <li><b>메모</b> 탭에서 체크리스트(짐 챙기기 등)를 만들어 보세요.</li>
-    <li><b>설정</b>에서 알림 시간을 정하면, 일정 있는 날 아침에 알려줘요.</li>
-    <li>기분을 3일 이상 남기면 <b>일기장</b> 탭에 기분 리포트가 생겨요.</li>
-  </ol>
+  <h2>🍡 이런 앱이에요</h2>
+  <p style="margin:0">달력에 <b>일정</b>을 적고, 그날 <b>일기</b>와 <b>기분</b>을 남기는 다이어리 앱이에요. 기분은 귀여운 캐릭터 <b>몽글이</b>로 골라요.</p>
 </div>
 
 <div class="card">
-  <h2><span class="n">4</span>의견 보내기</h2>
-  <p style="margin:0">불편한 점, 이상한 화면, 있었으면 하는 기능 뭐든 좋아요! 캡처와 함께 보내주시면 바로 고칠게요.</p>
-  <p style="margin:10px 0 0">📮 <a href="mailto:ywoo3136@gmail.com?subject=Dayfolio%20테스트%20의견">ywoo3136@gmail.com</a> 또는 DM</p>
+  <h2>❓ 궁금한 점</h2>
+  <div class="q"><b>돈이 드나요?</b><span>아니요, 완전 무료예요.</span></div>
+  <div class="q"><b>아이폰도 되나요?</b><span>아직은 갤럭시 같은 안드로이드 폰만 돼요.</span></div>
+  <div class="q"><b>링크를 눌렀는데 앱이 안 보여요</b><span>등록되기까지 시간이 걸릴 수 있어요. 몇 시간 뒤 다시 눌러 보시고, 그래도 안 되면 알려주세요.</span></div>
+  <div class="q"><b>알림이 자꾸 오나요?</b><span>일정이 있는 날 아침에 한 번만 와요. 설정에서 끌 수 있어요.</span></div>
+  <div class="q"><b>앱을 지우면요?</b><span>적은 내용도 같이 지워져요.</span></div>
 </div>
 
 <div class="card">
-  <h2>❓ 자주 묻는 질문</h2>
-  <details><summary>돈이 드나요?</summary><p>아니요, 완전히 무료예요. 결제나 광고가 없어요.</p></details>
-  <details><summary>앱을 지우면 기록은 어떻게 되나요?</summary><p>기록이 폰에만 저장돼서 앱을 지우면 함께 지워져요. 나중에 업데이트로 백업 기능을 넣을 예정이에요.</p></details>
-  <details><summary>테스트가 끝나면 어떻게 되나요?</summary><p>정식 출시가 되면 지금 설치한 앱이 그대로 정식 버전으로 업데이트돼요. 기록도 그대로 남아요.</p></details>
-  <details><summary>테스트를 그만두고 싶으면요?</summary><p>참여 링크에서 "테스트 그만두기"를 누르거나 앱을 지우면 돼요. 다만 14일 동안만은 유지해 주시면 정말 감사하겠어요 🥹</p></details>
-  <details><summary>알림이 너무 자주 오면요?</summary><p>알림은 일정이 있는 날 하루 한 번만 와요. 설정에서 끄거나 시간을 바꿀 수 있어요.</p></details>
+  <h2>💬 불편한 점이 있으면</h2>
+  <p style="margin:0">카톡으로 편하게 말해 주세요. 화면 캡처를 같이 보내주면 더 좋아요!</p>
 </div>
 
-<p class="foot">Dayfolio · 하루 기록 다이어리<br>함께 만들어 주셔서 고마워요 💙</p>
+<p class="foot">Dayfolio · 하루 기록 다이어리</p>
 </div>
 </body>
 </html>
