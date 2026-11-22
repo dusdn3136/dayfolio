@@ -327,7 +327,16 @@ function DiaryTab({ date, startInEdit }) {
           );
         })}
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginBottom: 14 }}>
+      <TextInput
+        style={st.textarea}
+        multiline
+        placeholder="오늘 하루는 어땠나요?"
+        placeholderTextColor={C.faint}
+        value={draft.text}
+        onChangeText={(t) => setDraft((s) => ({ ...s, text: t }))}
+        textAlignVertical="top"
+      />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, marginTop: 12 }}>
         {draft.photos.map((p, i) => (
           <View key={i} style={st.ph}>
             <Image source={{ uri: p }} style={{ width: '100%', height: '100%', borderRadius: 14 }} />
@@ -343,15 +352,6 @@ function DiaryTab({ date, startInEdit }) {
           </Pressable>
         ) : null}
       </ScrollView>
-      <TextInput
-        style={st.textarea}
-        multiline
-        placeholder="오늘 하루는 어땠나요?"
-        placeholderTextColor={C.faint}
-        value={draft.text}
-        onChangeText={(t) => setDraft((s) => ({ ...s, text: t }))}
-        textAlignVertical="top"
-      />
       <View style={st.actions}>
         {hasDiary(v) ? <Pressable style={[st.btn, st.btnDel]} onPress={remove}><Text style={{ color: C.sun, fontWeight: '700' }}>삭제</Text></Pressable> : null}
         <Pressable style={[st.btn, st.btnSec]} onPress={() => setEdit(false)}><Text style={{ color: C.ink2, fontWeight: '700', fontSize: 15.5 }}>취소</Text></Pressable>
@@ -413,7 +413,7 @@ const st = StyleSheet.create({
   ph: { width: 80, height: 80 },
   phRm: { position: 'absolute', top: 4, right: 4, width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(0,0,0,.55)', alignItems: 'center', justifyContent: 'center' },
   phAdd: { width: 80, height: 80, borderRadius: 14, borderWidth: 1.5, borderStyle: 'dashed', borderColor: C.faint, alignItems: 'center', justifyContent: 'center', gap: 4 },
-  textarea: { minHeight: 150, backgroundColor: C.soft, borderRadius: 14, padding: 14, fontSize: 15.5, lineHeight: 26, color: C.ink },
+  textarea: { minHeight: 120, backgroundColor: C.soft, borderRadius: 14, padding: 14, fontSize: 15.5, lineHeight: 26, color: C.ink },
   actions: { flexDirection: 'row', gap: 8, marginTop: 14 },
   btn: { paddingVertical: 15, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   btnSec: { backgroundColor: C.soft, width: 96 },

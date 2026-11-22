@@ -12,7 +12,26 @@ const LANE_H = 19;
 const MIN_WEEK_H = 92;
 
 // height: 달력 전체에 쓸 수 있는 높이 (주 수로 나눠서 칸을 꽉 채움)
+// 칸 너비에 맞게 제목을 깔끔하게 자름: 띄어쓰기 단위로 먼저, 안 되면 글자 단위로 (반쯤 잘린 글자가 안 보이게)
+const charW = (ch, fs) => (/[가-힣ㄱ-ㅎㅏ-ㅣ一-龥]/.test(ch) ? fs * 0.92 : /[A-Z0-9%@#&]/.test(ch) ? fs * 0.62 : /[\s.,!'·:;()-]/.test(ch) ? fs * 0.3 : /[\u{1F000}-\u{1FFFF}\u2600-\u27BF]/u.test(ch) ? fs * 1.15 : fs * 0.55);
+function fitTitle(title, width, fs) {
+  const chars = Array.from(title || '');
+  const total = chars.reduce((a, c) => a + charW(c, fs), 0);
+  if (total <= width) return title;
+  let w = 0, cut = 0;
+  for (; cut < chars.length; cut++) {
+    w += charW(chars[cut], fs);
+    if (w > width) break;
+  }
+  const head = chars.slice(0, cut).join('');
+  const sp = head.lastIndexOf(' ');
+  // 앞부분에 띄어쓰기가 있으면 거기까지만 (예: '전산회계 2급 시험' → '전산회계')
+  if (sp >= 2) return head.slice(0, sp);
+  return head;
+}
+
 export default function MonthGrid({ year, month, onPressDay, height }) {
+  const [gw, setGw] = React.useState(0);
   const { data, theme } = useApp();
   const today = todayStr();
 
@@ -90,7 +109,7 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
   }, [data.events, year, month, lanesAvail]);
 
   return (
-    <View style={{ paddingHorizontal: 8 }}>
+    <View style={{ paddingHorizontal: 8 }} onLayout={(e) => setGw(e.nativeEvent.layout.width - 16)}>
       {weeks.map((wk, wi) => (
         <View key={wi} style={[st.week, { height: weekH }]}>
           <View style={st.cells}>
@@ -125,7 +144,7 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
             if (it.holi) {
               return (
                 <View key={it.e.id + '-' + wi} pointerEvents="none" style={[st.barWrap, { left: `${(it.sc / 7) * 100}%`, width: `${100 / 7}%`, top: LANE_TOP + it.lane * LANE_H, justifyContent: 'center', paddingLeft: 5 }]}>
-                  <Text numberOfLines={1} ellipsizeMode="clip" style={st.holiTx}>{it.e.title}</Text>
+                  <Text numberOfLines={1} ellipsizeMode="clip" style={st.holiTx}>{gw ? fitTitle(it.e.title, gw / 7 - 8, 10.5) : it.e.title}</Text>
                 </View>
               );
             }
@@ -147,7 +166,7 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
                   ]}
                 >
                   <Text numberOfLines={1} ellipsizeMode="clip" style={[st.pillTx, it.multi && it.len > 1 && { textAlign: 'center' }, due && { fontWeight: '700' }, it.e.done && { textDecorationLine: 'line-through' }]}>
-                    {it.e.title}
+                    {gw ? fitTitle(it.e.title, (gw / 7) * it.len - (it.cl ? 0 : 2) - (it.cr ? 0 : 2) - 9, 10.5) : it.e.title}
                   </Text>
                 </View>
               </View>

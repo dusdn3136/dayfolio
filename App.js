@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, KeyboardAvoidingView, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, Keyboard } from 'react-native';
+import { ActivityIndicator, Animated, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, View, Keyboard, useWindowDimensions } from 'react-native';
 import { FONTS, Text } from './src/components/T';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
@@ -142,9 +142,24 @@ const SHEETS = { day: DaySheet, event: EventForm, cats: CategorySheet, memo: Mem
 const HEIGHT = { day: '78%', event: '78%', memo: '78%' };
 
 // 한 번에 맨 위 시트 하나만 보여주고, 닫으면 아래 시트로 돌아간다
+// 키보드 높이 (키보드가 올라오면 창을 그만큼 위로 올리고 높이를 줄임)
+function useKeyboardHeight() {
+  const [h, setH] = useState(0);
+  useEffect(() => {
+    const showEv = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEv = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const a = Keyboard.addListener(showEv, (e) => setH(e.endCoordinates.height));
+    const b = Keyboard.addListener(hideEv, () => setH(0));
+    return () => { a.remove(); b.remove(); };
+  }, []);
+  return h;
+}
+
 function SheetHost() {
   const { sheets, closeSheet } = useApp();
   const insets = useSafeAreaInsets();
+  const kb = useKeyboardHeight();
+  const winH = useWindowDimensions().height;
   const last = sheets.length - 1;
   const top = sheets[last];
   // 손잡이를 아래로 끌어내리면 닫힘
@@ -168,9 +183,16 @@ function SheetHost() {
   ).current;
   return (
     <Modal visible={!!top} transparent animationType="slide" onRequestClose={closeSheet} statusBarTranslucent>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={{ flex: 1 }}>
         <Pressable style={st.dim} onPress={closeSheet} accessibilityLabel="닫기" />
-        <Animated.View style={[st.sheet, top && HEIGHT[top.type] && { height: HEIGHT[top.type] }, { paddingBottom: Math.max(insets.bottom, 16), transform: [{ translateY: dragY }] }]}>
+        <Animated.View
+          style={[
+            st.sheet,
+            top && HEIGHT[top.type] && { height: kb ? winH - kb - insets.top - 12 : HEIGHT[top.type] },
+            kb ? { maxHeight: winH - kb - insets.top - 12, marginBottom: kb } : null,
+            { paddingBottom: kb ? 8 : Math.max(insets.bottom, 16), transform: [{ translateY: dragY }] },
+          ]}
+        >
           <View {...pan.panHandlers} style={st.grabArea} accessibilityLabel="아래로 끌어서 닫기">
             <View style={st.grab} />
           </View>
@@ -194,7 +216,7 @@ function SheetHost() {
           })}
           </Pressable>
         </Animated.View>
-      </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
