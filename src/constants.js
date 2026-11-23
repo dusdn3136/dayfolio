@@ -66,5 +66,17 @@ export const onDay = (e, s) => {
   const [a, b] = range(e);
   return a <= s && s <= b;
 };
+// 하루 일정 정렬: 기간 일정(여러 날) 먼저, 그다음 하루짜리는 사용자가 정한 순서 → 마감 → 시간
+export const isMulti = (e) => { const [a, b] = range(e); return a !== b; };
+export const ORDER_NONE = 1e9;
+export const sortDayEvents = (list) =>
+  list.slice().sort(
+    (a, b) =>
+      isMulti(b) - isMulti(a) ||
+      (isMulti(a) ? range(a)[0].localeCompare(range(b)[0]) : 0) ||
+      (a.order ?? ORDER_NONE) - (b.order ?? ORDER_NONE) ||
+      (b.kind === 'due') - (a.kind === 'due') ||
+      (a.time || '99').localeCompare(b.time || '99')
+  );
 export const hasDiary = (v) => !!(v && (v.text || v.mood != null || (v.photos && v.photos.length)));
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);

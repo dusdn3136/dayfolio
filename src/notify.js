@@ -1,6 +1,6 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import { onDay, range, ymd } from './constants';
+import { onDay, range, sortDayEvents, ymd } from './constants';
 
 // 매일 알림 — 정해진 시간에 그날 일정을 한 번에 알려줌 (서버 없이 폰 안에서 예약)
 export const DEFAULT_NOTIFY = { on: true, time: '09:00' };
@@ -29,15 +29,19 @@ export async function ensurePermission() {
 }
 
 function digest(events, day) {
-  const evs = events.filter((e) => !e.done && onDay(e, day));
+  const evs = sortDayEvents(events.filter((e) => !e.done && onDay(e, day)));
   if (!evs.length) return null;
-  const names = evs.map((e) => {
+  // 한 줄에 일정 하나씩
+  const lines = evs.map((e) => {
     const [a, b] = range(e);
-    if (a !== b && b === day) return `${e.title}(오늘 마감)`;
-    return e.time ? `${e.time} ${e.title}` : e.title;
+    if (a !== b && b === day) return `• ${e.title} · 오늘 마감`;
+    return e.time ? `• ${e.time} ${e.title}` : `• ${e.title}`;
   });
-  const shown = names.slice(0, 4).join(' · ') + (names.length > 4 ? ` 외 ${names.length - 4}개` : '');
-  return { title: `오늘 일정 ${evs.length}개`, body: shown };
+  const body = lines.slice(0, 4).join('\n') + (lines.length > 4 ? `\n외 ${lines.length - 4}개` : '');
+  const count = `오늘 일정 ${evs.length}개`;
+  // 아이폰은 제목 자리에 앱 이름을 넣고 개수는 부제목으로, 갤럭시는 앱 이름이 위에 자동으로 붙어서 제목에 개수
+  if (Platform.OS === 'ios') return { title: 'Dayfolio', subtitle: count, body };
+  return { title: count, body };
 }
 
 export async function syncReminders(data) {

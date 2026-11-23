@@ -5,7 +5,7 @@ import { C, D, WD, dLabel, dayDiff, mdShort, todayStr } from '../constants';
 import { catOf, useApp } from '../store';
 import { CheckBox } from './ui';
 
-export default function EventRow({ e, withDate }) {
+export default function EventRow({ e, withDate, onLongPress, onPressOut }) {
   const { data, update, openSheet, toast, theme } = useApp();
   const cat = catOf(data, e.cat);
   const far = dayDiff(e.date, todayStr()) > 7;
@@ -52,7 +52,13 @@ export default function EventRow({ e, withDate }) {
         </Pressable>
       </View>
       <Animated.View {...pan.panHandlers} style={{ transform: [{ translateX: x }], backgroundColor: '#fff' }}>
-    <Pressable style={st.row} onPress={() => (opened.current ? snap(0) : openSheet('event', { id: e.id }))}>
+    <Pressable
+      style={st.row}
+      onPress={() => (opened.current ? snap(0) : openSheet('event', { id: e.id }))}
+      onLongPress={onLongPress && !opened.current ? onLongPress : undefined}
+      onPressOut={onPressOut}
+      delayLongPress={350}
+    >
       <View style={[st.dot, { backgroundColor: cat.c }, e.kind === 'due' && { borderRadius: 3 }]} />
       <View style={{ flex: 1, minWidth: 0 }}>
         <Text numberOfLines={1} style={[st.title, e.done && st.done]}>{e.title}</Text>

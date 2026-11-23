@@ -156,7 +156,7 @@ function useKeyboardHeight() {
 }
 
 function SheetHost() {
-  const { sheets, closeSheet } = useApp();
+  const { sheets, closeSheet, scrollLock } = useApp();
   const insets = useSafeAreaInsets();
   const kb = useKeyboardHeight();
   const winH = useWindowDimensions().height;
@@ -206,6 +206,7 @@ function SheetHost() {
                 key={i}
                 style={i === last ? { flexGrow: 0, flexShrink: 1 } : { display: 'none' }}
                 keyboardShouldPersistTaps="handled"
+                scrollEnabled={!scrollLock}
                 keyboardDismissMode="on-drag"
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}

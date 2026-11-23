@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Alert, Image, Modal, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Animated, Image, Modal, PanResponder, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Text, TextInput } from '../components/T';
 import * as ImagePicker from 'expo-image-picker';
 import { File, Directory, Paths } from 'expo-file-system';
-import { C, MOODS, WD, D, dayDiff, hasDiary, onDay, todayStr, uid } from '../constants';
+import { C, MOODS, WD, D, dayDiff, hasDiary, isMulti, onDay, sortDayEvents, todayStr, uid } from '../constants';
 import { holidayOf } from '../holidays';
 import { useApp } from '../store';
 import EventRow from '../components/EventRow';
@@ -85,15 +85,98 @@ function Tabs({ tab, date, onChange }) {
 }
 
 function EventsTab({ date, onAdd }) {
-  const { data, theme } = useApp();
-  const evs = data.events
-    .filter((e) => onDay(e, date))
-    .sort((a, b) => ((a.kind === 'due' ? '0' : '1') + (a.time || '99')).localeCompare((b.kind === 'due' ? '0' : '1') + (b.time || '99')));
+  const { data, update, theme, setScrollLock } = useApp();
+  const evs = sortDayEvents(data.events.filter((e) => onDay(e, date)));
+  const fixed = evs.filter(isMulti); // 기간 일정은 맨 위 고정
+  const singles = evs.filter((e) => !isMulti(e));
+
+  // 하루짜리 일정을 꾹 눌러 위아래로 끌면 순서가 바뀐다
+  const [ids, setIds] = useState(null);
+  const [dragId, setDragId] = useState(null);
+  const dy = useRef(new Animated.Value(0)).current;
+  const drag = useRef({ id: null, h: 64, base: 0, moved: false, ids: [] }).current;
+  const shown = ids ? ids.map((id) => singles.find((e) => e.id === id)).filter(Boolean) : singles;
+
+  const begin = (id) => {
+    drag.id = id;
+    drag.moved = false;
+    drag.base = 0;
+    drag.ids = singles.map((e) => e.id);
+    dy.setValue(0);
+    setIds(drag.ids);
+    setDragId(id);
+    setScrollLock(true);
+  };
+  const finishRef = useRef(null);
+  finishRef.current = (save) => {
+    if (!drag.id) return;
+    const order = drag.ids;
+    drag.id = null;
+    dy.setValue(0);
+    setDragId(null);
+    setScrollLock(false);
+    if (save) {
+      update((dr) => {
+        order.forEach((id, i) => {
+          const x = dr.events.find((v) => v.id === id);
+          if (x) x.order = i;
+        });
+      });
+    }
+    setIds(null);
+  };
+  const pan = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponderCapture: () => {
+        if (!drag.id) return false;
+        drag.moved = true;
+        return true;
+      },
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderMove: (_, g) => {
+        const arr = drag.ids.slice();
+        let i = arr.indexOf(drag.id);
+        let off = g.dy - drag.base;
+        let changed = false;
+        while (off > drag.h / 2 && i < arr.length - 1) {
+          [arr[i], arr[i + 1]] = [arr[i + 1], arr[i]];
+          i++; drag.base += drag.h; off -= drag.h; changed = true;
+        }
+        while (off < -drag.h / 2 && i > 0) {
+          [arr[i], arr[i - 1]] = [arr[i - 1], arr[i]];
+          i--; drag.base -= drag.h; off += drag.h; changed = true;
+        }
+        if (changed) { drag.ids = arr; setIds(arr); }
+        dy.setValue(off);
+      },
+      onPanResponderRelease: () => finishRef.current(true),
+      onPanResponderTerminate: () => finishRef.current(true),
+    })
+  ).current;
+
   return (
     <View>
       {evs.length ? (
         <>
-          {evs.map((e) => <EventRow key={e.id} e={e} />)}
+          {fixed.map((e) => <EventRow key={e.id} e={e} />)}
+          <View {...pan.panHandlers}>
+            {shown.map((e) => {
+              const on = e.id === dragId;
+              return (
+                <Animated.View
+                  key={e.id}
+                  onLayout={on ? undefined : (ev) => { drag.h = ev.nativeEvent.layout.height; }}
+                  style={on ? [st.lifted, { transform: [{ translateY: dy }, { scale: 1.02 }] }] : null}
+                >
+                  <EventRow
+                    e={e}
+                    onLongPress={singles.length > 1 ? () => begin(e.id) : undefined}
+                    onPressOut={() => { if (drag.id && !drag.moved) finishRef.current(false); }}
+                  />
+                </Animated.View>
+              );
+            })}
+          </View>
           <Pressable style={[st.addRow, { backgroundColor: theme.s }]} onPress={onAdd}>
             <IconPlus size={18} color={theme.a} />
             <Text style={[st.addTx, { color: theme.a }]}>일정 추가</Text>
@@ -362,6 +445,7 @@ function DiaryTab({ date, startInEdit }) {
 }
 
 const st = StyleSheet.create({
+  lifted: { zIndex: 2, elevation: 6, backgroundColor: '#fff', borderRadius: 12, shadowColor: '#000', shadowOpacity: 0.12, shadowRadius: 10, shadowOffset: { width: 0, height: 4 } },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
   close: { width: 32, height: 32, borderRadius: 16, backgroundColor: C.soft, alignItems: 'center', justifyContent: 'center' },
   h3: { fontSize: 21, fontWeight: '800', letterSpacing: -0.8, color: C.ink },

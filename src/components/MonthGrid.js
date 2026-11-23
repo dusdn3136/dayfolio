@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Text } from './T';
-import { C, MOODS, dayDiff, range, todayStr, ymd } from '../constants';
+import { C, MOODS, ORDER_NONE, dayDiff, range, todayStr, ymd } from '../constants';
 import { catOf, isEmptyMemo, useApp } from '../store';
 import { IconMemoBadge } from './Icons';
 import Mochi from './Mochi';
@@ -76,6 +76,7 @@ export default function MonthGrid({ year, month, onPressDay, height }) {
             y.multi - x.multi ||
             y.len - x.len ||
             x.sc - y.sc ||
+            (x.e.order ?? ORDER_NONE) - (y.e.order ?? ORDER_NONE) ||
             (y.e.kind === 'due') - (x.e.kind === 'due') ||
             (x.e.time || '99').localeCompare(y.e.time || '99')
         );

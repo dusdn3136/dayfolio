@@ -74,9 +74,12 @@ export function AppProvider({ children }) {
     toastTimer.current = setTimeout(() => setToastMsg(null), 1800);
   }, []);
 
+  // 일정 순서를 끌어서 바꾸는 동안 시트 스크롤을 잠근다
+  const [scrollLock, setScrollLock] = useState(false);
+
   const theme = useMemo(() => THEMES.find((t) => t.k === (data && data.theme)) || THEMES[0], [data]);
 
-  const value = { data, update, reset, theme, sheets, openSheet, closeSheet, closeAllSheets, setSheetProps, toast, toastMsg };
+  const value = { data, update, reset, theme, sheets, openSheet, closeSheet, closeAllSheets, setSheetProps, toast, toastMsg, scrollLock, setScrollLock };
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }
 
