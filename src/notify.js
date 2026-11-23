@@ -46,8 +46,8 @@ function digest(events, day) {
     shown[MAX - 1] = `${cut}  외 ${rest}개`;
   }
   const body = shown.map((l) => `• ${l}`).join('\n');
-  // 아이폰은 제목 자리에 앱 이름 + 개수, 갤럭시는 위에 앱 이름이 자동으로 붙어서 TODAY + 개수
-  const title = Platform.OS === 'ios' ? `Dayfolio (${evs.length})` : `TODAY (${evs.length})`;
+  // 아이폰은 제목 자리에 앱 이름, 갤럭시는 위에 앱 이름이 자동으로 붙어서 TODAY (개수는 "외 N개"로 충분)
+  const title = Platform.OS === 'ios' ? 'Dayfolio' : 'TODAY';
   return { title, body };
 }
 
