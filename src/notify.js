@@ -31,17 +31,24 @@ export async function ensurePermission() {
 function digest(events, day) {
   const evs = sortDayEvents(events.filter((e) => !e.done && onDay(e, day)));
   if (!evs.length) return null;
-  // 한 줄에 일정 하나씩
+  // 한 줄에 일정 하나씩, 최대 3개 (넘치면 세 번째 줄 끝에 "외 N개")
+  const MAX = 3;
   const lines = evs.map((e) => {
     const [a, b] = range(e);
-    if (a !== b && b === day) return `• ${e.title} · 오늘 마감`;
-    return e.time ? `• ${e.time} ${e.title}` : `• ${e.title}`;
+    if (a !== b && b === day) return `${e.title} · 오늘 마감`;
+    return e.time ? `[${e.time}] ${e.title}` : e.title;
   });
-  const body = lines.slice(0, 4).join('\n') + (lines.length > 4 ? `\n외 ${lines.length - 4}개` : '');
-  const count = `오늘 일정 ${evs.length}개`;
-  // 아이폰은 제목 자리에 앱 이름을 넣고 개수는 부제목으로, 갤럭시는 앱 이름이 위에 자동으로 붙어서 제목에 개수
-  if (Platform.OS === 'ios') return { title: 'Dayfolio', subtitle: count, body };
-  return { title: count, body };
+  const shown = lines.slice(0, MAX);
+  const rest = lines.length - MAX;
+  if (rest > 0) {
+    const last = shown[MAX - 1];
+    const cut = last.length > 16 ? last.slice(0, 15) + '…' : last;
+    shown[MAX - 1] = `${cut}  외 ${rest}개`;
+  }
+  const body = shown.map((l) => `• ${l}`).join('\n');
+  // 아이폰은 제목 자리에 앱 이름 + 개수, 갤럭시는 위에 앱 이름이 자동으로 붙어서 TODAY + 개수
+  const title = Platform.OS === 'ios' ? `Dayfolio (${evs.length})` : `TODAY (${evs.length})`;
+  return { title, body };
 }
 
 export async function syncReminders(data) {
